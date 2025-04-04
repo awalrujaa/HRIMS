@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,11 +8,7 @@ public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @ManyToOne
-    @JoinColumn(name = "address_id")
-    private Employee employee;
+    private long addressId;
 
     private String street;
     private String city;
@@ -23,9 +20,8 @@ public class Address {
 
     }
 
-    public Address(long id, Employee employee, String street, String city, String state, String zipcode, String country) {
-        this.id = id;
-        this.employee = employee;
+    public Address(long id, Long employee, String street, String city, String state, String zipcode, String country) {
+        this.addressId = id;
         this.street = street;
         this.city = city;
         this.state = state;
@@ -34,20 +30,20 @@ public class Address {
     }
 
     public long getId() {
-        return id;
+        return addressId;
     }
 
     public void setId(long id) {
-        this.id = id;
+        this.addressId = id;
     }
 
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
+//    public Long getEmployee() {
+//        return employeeId;
+//    }
+//
+//    public void setEmployee(Long employee) {
+//        this.employeeId = employee;
+//    }
 
     public String getStreet() {
         return street;

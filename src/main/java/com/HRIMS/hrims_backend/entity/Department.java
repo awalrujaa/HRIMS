@@ -13,8 +13,8 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany(mappedBy = "department")
-    private List<Employee> employees;   // One department can have multiple employees.
+//    @OneToMany(mappedBy = "department")
+//    private List<Employee> employees;   // One department can have multiple employees.
 
     private String departmentName;
     private String departmentCode;
@@ -24,7 +24,7 @@ public class Department {
 
     public Department(long id, List<Employee> employees, String departmentName, String departmentCode) {
         this.id = id;
-        this.employees = employees;
+//        this.employees = employees;
         this.departmentName = departmentName;
         this.departmentCode = departmentCode;
     }
@@ -37,13 +37,13 @@ public class Department {
         this.id = id;
     }
 
-    public List<Employee> getEmployees() {
-        return employees;
-    }
-
-    public void setEmployees(List<Employee> employees) {
-        this.employees = employees;
-    }
+//    public List<Employee> getEmployees() {
+//        return employees;
+//    }
+//
+//    public void setEmployees(List<Employee> employees) {
+//        this.employees = employees;
+//    }
 
     public String getDepartmentName() {
         return departmentName;

@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,52 +12,54 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-//    @NotBlank(message = "The content must not be null and must contain at least one non-whitespace character")
-//    @Size(min = 1, max = 500, message = "content must be at most 500 characters, and has at least one character")
     private String firstName;
     private String middleName;
     private String lastName;
     private String fullName;
-    private String userName;    // For Login
-    private String password;    // Password is stored only after hashing
-    private String role;
+//    private String userName;    // For Login
+//    private String password;    // Password is stored only after hashing.
+//    private String role;
     private double salary;
     private String phoneNumber;
     private String email;
-    private String designation;
+//    private String designation;
     private LocalDate dateOfBirth;
     private String bloodGroup;
     private LocalDate dateOfJoining;
 
-    @ManyToOne
-    @JoinColumn(name = "department_id")
-    private Department department;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "department_id", referencedColumnName = "id", insertable = false, updatable = false)
+//    private Department department;
 
-    // An employee has temporary and permanent address.
-    @OneToMany(mappedBy = "employee")
-    private List<Address> addresses;
+//    @Column(name = "department_id")
+//    private Long departmentId;
+
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "addressId", nullable = false)
+    private Address address;
+//    private List<Address> addresses;
 
     public Employee() {
     }
 
-    public Employee(long id, String firstName, String middleName, String lastName, String fullName, String userName, String password, String role, double salary, String phoneNumber, String email, String designation, LocalDate dateOfBirth, String bloodGroup, LocalDate dateOfJoining, Department department, List<Address> addresses) {
+    public Employee(long id, String firstName, String middleName, String lastName, String fullName, String userName, String password, String role, double salary, String phoneNumber, String email, String designation, LocalDate dateOfBirth, String bloodGroup, LocalDate dateOfJoining, Long departmentId, Address addresses) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.fullName = fullName;
-        this.userName = userName;
-        this.password = password;
-        this.role = role;
+//        this.userName = userName;
+//        this.password = password;
+//        this.role = role;
         this.salary = salary;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.designation = designation;
+//        this.designation = designation;
         this.dateOfBirth = dateOfBirth;
         this.bloodGroup = bloodGroup;
         this.dateOfJoining = dateOfJoining;
-        this.department = department;
-        this.addresses = addresses;
+//        this.departmentId = departmentId;
+        this.address = addresses;
     }
 
     public long getId() {
@@ -95,34 +98,41 @@ public class Employee {
         return fullName;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    // Automatically set full name before saving
+    @PrePersist
+    @PreUpdate
+    public void setFullName() {
+        this.fullName = String.join(" ",
+                firstName != null ? firstName : "",
+                middleName != null && !middleName.isBlank() ? middleName : "",
+                lastName != null ? lastName : ""
+        ).trim().replaceAll(" +", " "); // remove extra spaces
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
+//    public String getUserName() {
+//        return userName;
+//    }
+//
+//    public void setUserName(String userName) {
+//        this.userName = userName;
+//    }
+//
+//    public String getPassword() {
+//        return password;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
+//
+//    public String getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(String role) {
+//        this.role = role;
+//    }
+//
     public double getSalary() {
         return salary;
     }
@@ -147,14 +157,14 @@ public class Employee {
         this.email = email;
     }
 
-    public String getDesignation() {
-        return designation;
-    }
-
-    public void setDesignation(String designation) {
-        this.designation = designation;
-    }
-
+//    public String getDesignation() {
+//        return designation;
+//    }
+//
+//    public void setDesignation(String designation) {
+//        this.designation = designation;
+//    }
+//
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
@@ -179,19 +189,19 @@ public class Employee {
         this.dateOfJoining = dateOfJoining;
     }
 
-    public Department getDepartment() {
-        return department;
+//    public Long getDepartmentId() {
+//        return departmentId;
+//    }
+//
+//    public void setDepartmentId(Long departmentId) {
+//        this.departmentId = departmentId;
+//    }
+
+    public Address getAddresses() {
+        return address;
     }
 
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
+    public void setAddresses(Address addresses) {
+        this.address = addresses;
     }
 }
