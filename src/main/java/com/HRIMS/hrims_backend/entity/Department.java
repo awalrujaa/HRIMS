@@ -11,6 +11,7 @@ public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true)
     private long id;
 
 //    @OneToMany(mappedBy = "department")
