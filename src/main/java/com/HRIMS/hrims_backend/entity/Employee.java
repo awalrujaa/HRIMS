@@ -27,9 +27,9 @@ public class Employee {
     private String bloodGroup;
     private LocalDate dateOfJoining;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "department_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private Department department;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    private Department department;
 
 //    @Column(name = "department_id")
 //    private Long departmentId;
@@ -42,7 +42,7 @@ public class Employee {
     public Employee() {
     }
 
-    public Employee(long id, String firstName, String middleName, String lastName, String fullName, String userName, String password, String role, double salary, String phoneNumber, String email, String designation, LocalDate dateOfBirth, String bloodGroup, LocalDate dateOfJoining, Long departmentId, Address addresses) {
+    public Employee(long id, String firstName, String middleName, String lastName, String fullName, String userName, String password, String role, double salary, String phoneNumber, String email, String designation, LocalDate dateOfBirth, String bloodGroup, LocalDate dateOfJoining, Department department, Address addresses) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -58,7 +58,7 @@ public class Employee {
         this.dateOfBirth = dateOfBirth;
         this.bloodGroup = bloodGroup;
         this.dateOfJoining = dateOfJoining;
-//        this.departmentId = departmentId;
+        this.department = department;
         this.address = addresses;
     }
 
@@ -189,13 +189,13 @@ public class Employee {
         this.dateOfJoining = dateOfJoining;
     }
 
-//    public Long getDepartmentId() {
-//        return departmentId;
-//    }
-//
-//    public void setDepartmentId(Long departmentId) {
-//        this.departmentId = departmentId;
-//    }
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
 
     public Address getAddresses() {
         return address;

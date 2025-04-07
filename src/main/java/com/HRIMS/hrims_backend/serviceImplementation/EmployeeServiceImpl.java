@@ -39,6 +39,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setBloodGroup(employee.getBloodGroup());
         employee.setDateOfJoining(employee.getDateOfJoining());
 
+        employee.setDepartment(employee.getDepartment());
+
         // Create and save address
 //        List<Address> addresses = new ArrayList<>();
 //        for(Address addressDetails: employee.getAddresses()) {
