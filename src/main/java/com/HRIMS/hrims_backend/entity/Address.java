@@ -20,7 +20,7 @@ public class Address {
 
     }
 
-    public Address(long id, Long employee, String street, String city, String state, String zipcode, String country) {
+    public Address(long id, String street, String city, String state, String zipcode, String country) {
         this.addressId = id;
         this.street = street;
         this.city = city;
@@ -28,6 +28,7 @@ public class Address {
         this.zipcode = zipcode;
         this.country = country;
     }
+
 
     public long getId() {
         return addressId;

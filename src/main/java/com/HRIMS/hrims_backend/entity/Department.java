@@ -3,6 +3,7 @@ package com.HRIMS.hrims_backend.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -13,16 +14,16 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-//    @OneToMany(mappedBy = "department")
-//    private List<Employee> employees;   // One department can have multiple employees.
-
+    @NotNull(message = "Department name cannot be null")
     private String departmentName;
+
+    @NotNull(message = "Department code cannot be null")
     private String departmentCode;
 
     public Department() {
     }
 
-    public Department(long id, List<Employee> employees, String departmentName, String departmentCode) {
+    public Department(long id, String departmentName, String departmentCode) {
         this.id = id;
 //        this.employees = employees;
         this.departmentName = departmentName;

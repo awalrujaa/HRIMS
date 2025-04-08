@@ -24,7 +24,7 @@ public class Payroll {
     private double others;
 
     private double netSalary;
-    private LocalDateTime pay_date;
+    private LocalDateTime payDate;
 
     public Payroll() {
     }
@@ -42,7 +42,7 @@ public class Payroll {
         this.tax = tax;
         this.others = others;
         this.netSalary = netSalary;
-        this.pay_date = pay_date;
+        this.payDate = pay_date;
     }
 
     public long getId() {
@@ -141,11 +141,11 @@ public class Payroll {
         this.netSalary = netSalary;
     }
 
-    public LocalDateTime getPay_date() {
-        return pay_date;
+    public LocalDateTime getPayDate() {
+        return payDate;
     }
 
-    public void setPay_date(LocalDateTime pay_date) {
-        this.pay_date = pay_date;
+    public void setPayDate(LocalDateTime payDate) {
+        this.payDate = payDate;
     }
 }

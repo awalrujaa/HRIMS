@@ -1,11 +1,12 @@
 package com.HRIMS.hrims_backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Builder;
+
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
+//@Builder
 public class Employee {
 
     @Id
@@ -27,22 +28,18 @@ public class Employee {
     private String bloodGroup;
     private LocalDate dateOfJoining;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "department_id", referencedColumnName = "id")
     private Department department;
-
-//    @Column(name = "department_id")
-//    private Long departmentId;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "addressId", nullable = false)
     private Address address;
-//    private List<Address> addresses;
 
     public Employee() {
     }
 
-    public Employee(long id, String firstName, String middleName, String lastName, String fullName, String userName, String password, String role, double salary, String phoneNumber, String email, String designation, LocalDate dateOfBirth, String bloodGroup, LocalDate dateOfJoining, Department department, Address addresses) {
+    public Employee(long id, String firstName, String middleName, String lastName, String fullName, double salary, String phoneNumber, String email, LocalDate dateOfBirth, String bloodGroup, LocalDate dateOfJoining, Department department, Address address) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -59,7 +56,7 @@ public class Employee {
         this.bloodGroup = bloodGroup;
         this.dateOfJoining = dateOfJoining;
         this.department = department;
-        this.address = addresses;
+        this.address = address;
     }
 
     public long getId() {
@@ -197,11 +194,11 @@ public class Employee {
         this.department = department;
     }
 
-    public Address getAddresses() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddresses(Address addresses) {
-        this.address = addresses;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }

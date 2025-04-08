@@ -12,8 +12,10 @@ import java.util.Optional;
 @Service
 public class DepartmentServiceImpl implements DepartmentService {
 
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
+    public DepartmentServiceImpl (DepartmentRepository departmentRepository){
+        this.departmentRepository = departmentRepository;
+    }
 
     @Override
     public Department createDepartment(Department department) {
@@ -27,7 +29,12 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Optional<Department> getDepartmentById(Long id) {
-        return departmentRepository.findById(id);
+        Optional<Department> department = departmentRepository.findById(id);
+        // If the department is not found, throw an exception
+        if (department.isEmpty()) {
+            throw new RuntimeException("Department not found with id " + id);
+        }
+        return department;
     }
 
     @Override
@@ -47,9 +54,13 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public String deleteDepartmentById(Long id) {
+        Optional<Department> optionalDepartment = departmentRepository.findById(id);
+        // If the department is not found, throw an exception (or handle it as needed)
+        if (optionalDepartment.isEmpty()) {
+            return "Department not found with id " + id;
+        }
         departmentRepository.deleteById(id);
         return "Success";
-
     }
 
     @Override
