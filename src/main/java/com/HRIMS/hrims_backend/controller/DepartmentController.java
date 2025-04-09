@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.controller;
 
+import com.HRIMS.hrims_backend.dto.response.DepartmentDto;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +17,23 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @PostMapping
-    public Department createDepartment(@RequestBody Department department){
-        return departmentService.createDepartment(department);
+    public DepartmentDto createDepartment(@RequestBody DepartmentDto departmentDto){
+        return departmentService.createDepartment(departmentDto);
     }
 
     @GetMapping
-    public List<Department> getDepartments(){
+    public List<DepartmentDto> getDepartments(){
         return departmentService.getAllDepartments();
     }
 
     @GetMapping("/{departmentId}")
-    public Optional<Department> getDepartmentById(@PathVariable Long departmentId){
+    public DepartmentDto getDepartmentById(@PathVariable Long departmentId){
         return departmentService.getDepartmentById(departmentId);
     }
 
     @PutMapping("/{departmentId}")
-    public Department updateDepartment(@PathVariable Long departmentId, @RequestBody Department department){
-        return departmentService.updateDepartment(departmentId, department);
+    public DepartmentDto updateDepartment(@PathVariable Long departmentId, @RequestBody DepartmentDto departmentDto){
+        return departmentService.updateDepartment(departmentId, departmentDto);
     }
 
     @DeleteMapping("/{departmentId}")
@@ -44,5 +45,4 @@ public class DepartmentController {
     public String deleteDepartments(){
         return departmentService.deleteDepartments();
     }
-
 }
