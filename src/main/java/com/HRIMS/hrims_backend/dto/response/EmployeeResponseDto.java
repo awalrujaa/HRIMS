@@ -1,18 +1,23 @@
 package com.HRIMS.hrims_backend.dto.response;
 
+import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.entity.Address;
 import com.HRIMS.hrims_backend.entity.Department;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
+
 @Builder
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EmployeeResponseDto {
+    private Long id;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -24,32 +29,32 @@ public class EmployeeResponseDto {
     private String bloodGroup;
     private LocalDate dateOfJoining;
 
-    private DepartmentResponseDto department;
+    private DepartmentDto department;
 
-    private AddressResponseDto address;
-
-    @Builder
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DepartmentResponseDto {
-
-        private String departmentName;
-
-        private String departmentCode;
-    }
-    @Builder
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AddressResponseDto {
-        private long addressId;
-        private String street;
-        private String city;
-        private String state;
-        private String zipcode;
-        private String country;
-    }
+    private AddressDto address;
+//
+//    @Builder
+//    @Setter
+//    @Getter
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class DepartmentResponseDto {
+//
+//        private String departmentName;
+//
+//        private String departmentCode;
+//    }
+//    @Builder
+//    @Setter
+//    @Getter
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class AddressResponseDto {
+//        private long addressId;
+//        private String street;
+//        private String city;
+//        private String state;
+//        private String zipcode;
+//        private String country;
+//    }
 }

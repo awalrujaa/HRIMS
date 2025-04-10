@@ -1,4 +1,4 @@
-package com.HRIMS.hrims_backend.dto.response;
+package com.HRIMS.hrims_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;

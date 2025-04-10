@@ -1,14 +1,22 @@
-package com.HRIMS.hrims_backend.serviceImplementation;
+package com.HRIMS.hrims_backend.service.impl;
 
+import com.HRIMS.hrims_backend.dto.request.EmployeeRequestDto;
 import com.HRIMS.hrims_backend.dto.response.EmployeeResponseDto;
+import com.HRIMS.hrims_backend.dto.response.AddressDto;
+import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.entity.Address;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.entity.Employee;
+import com.HRIMS.hrims_backend.mapper.impl.EmployeeMapper;
 import com.HRIMS.hrims_backend.repository.AddressRepository;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
 import com.HRIMS.hrims_backend.service.EmployeeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +24,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final EmployeeRepository employeeRepository;
+    private final AddressRepository addressRepository;
+    private final DepartmentRepository departmentRepository;
 
     @Override
+    @Transactional
     public Employee createEmployee(Employee employee) {
-
         employee.setFirstName(employee.getFirstName());
         employee.setMiddleName(employee.getMiddleName());
         employee.setLastName(employee.getLastName());
@@ -60,30 +64,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public List<EmployeeResponseDto> getAllEmployees() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         List<Employee> employees = employeeRepository.findAll();
-
-        return employees.stream().map(employee -> EmployeeResponseDto
-                .builder()
-                .firstName(employee.getFirstName())
-                .middleName(employee.getMiddleName())
-                .lastName(employee.getLastName())
-                .fullName(employee.getFullName())
-                .salary(employee.getSalary())
-                .phoneNumber(employee.getPhoneNumber())
-                .email(employee.getEmail())
-                .dateOfBirth(employee.getDateOfBirth())
-                .bloodGroup(employee.getBloodGroup())
-                .dateOfJoining(employee.getDateOfJoining())
-                .department(EmployeeResponseDto.DepartmentResponseDto
-                        .builder()
-                        .departmentName(employee.getDepartment().getDepartmentName())
-                        .departmentCode(employee.getDepartment().getDepartmentCode())
-                        .build())
-                .address(EmployeeResponseDto.AddressResponseDto
-                        .builder()
-                        .state(employee.getAddress().getState())
-                        .build())
-                .build()).collect(Collectors.toList());
+        return employees.stream().map(employee -> mapper.convertValue(employee, EmployeeResponseDto.class)).collect(Collectors.toList());
     }
 
     @Transactional
@@ -119,7 +104,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDepartment(employeeDetails.getDepartment());
 
         // id of address should be original
-        long addId = employee.getAddress().getId();
+        long addId = employee.getAddress().getAddressId();
         Optional<Address> optionalAddress = addressRepository.findById(addId);
         if (optionalAddress.isEmpty()){
             throw new RuntimeException("Address not found with id: " + addId);
@@ -145,6 +130,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public String deleteAllEmployees() {
-        return "";
+        employeeRepository.deleteAll();
+        return "Successfully Deleted All Employees";
     }
 }

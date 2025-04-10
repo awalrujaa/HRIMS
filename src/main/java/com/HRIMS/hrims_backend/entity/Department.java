@@ -4,9 +4,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Department {
 
@@ -19,46 +23,4 @@ public class Department {
 
     @NotNull(message = "Department code cannot be null")
     private String departmentCode;
-
-    public Department() {
-    }
-
-    public Department(long id, String departmentName, String departmentCode) {
-        this.id = id;
-//        this.employees = employees;
-        this.departmentName = departmentName;
-        this.departmentCode = departmentCode;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-//    public List<Employee> getEmployees() {
-//        return employees;
-//    }
-//
-//    public void setEmployees(List<Employee> employees) {
-//        this.employees = employees;
-//    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
-    }
-
-    public String getDepartmentCode() {
-        return departmentCode;
-    }
-
-    public void setDepartmentCode(String departmentCode) {
-        this.departmentCode = departmentCode;
-    }
 }

@@ -1,6 +1,6 @@
-package com.HRIMS.hrims_backend.serviceImplementation;
+package com.HRIMS.hrims_backend.service.impl;
 
-import com.HRIMS.hrims_backend.dto.response.DepartmentDto;
+import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.mapper.DepartmentMapper;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;

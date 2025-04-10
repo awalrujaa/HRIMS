@@ -1,6 +1,6 @@
 package com.HRIMS.hrims_backend.controller;
 
-import com.HRIMS.hrims_backend.dto.response.DepartmentDto;
+import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,11 @@ import java.util.Optional;
 @RequestMapping("/api/departments")
 public class DepartmentController {
 
-    @Autowired
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
+
+    public DepartmentController(DepartmentService departmentService){
+        this.departmentService = departmentService;
+    }
 
     @PostMapping
     public DepartmentDto createDepartment(@RequestBody DepartmentDto departmentDto){
