@@ -1,8 +1,6 @@
 package com.HRIMS.hrims_backend.service.impl;
 
-import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.dto.LeaveDto;
-import com.HRIMS.hrims_backend.dto.response.EmployeeResponseDto;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.entity.Leave;
 import com.HRIMS.hrims_backend.enums.LeaveStatus;
@@ -15,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -36,12 +35,15 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public LeaveDto createLeaveRequest(LeaveDto leaveDto) {
         Long empId = leaveDto.getEmployeeId();
+        System.out.println("----------------");
+        System.out.println(empId);
         Optional<Employee> employee = employeeRepository.findById(empId);
         if(employee.isEmpty()){
             throw new RuntimeException("Employee doesn't exist with id: " + empId);
         }
         Leave leave = leaveMapper.toLeaveEntity(leaveDto);
         leave.setLeaveStatus(LeaveStatus.PENDING);
+        System.out.println(leave);
         if(leave.getStartDate().isAfter(leave.getEndDate())){
             throw new RuntimeException("Invalid Operation. Start date should be before end date.");
         }
@@ -109,16 +111,17 @@ public class LeaveServiceImpl implements LeaveService {
         }
         leave.setLeaveStatus(LeaveStatus.CANCELLED);
         leaveRepository.save(leave);
-        return null;
+        sendLeaveNotification();
+//        return new ResponseEntity<>()
+        return new ResponseEntity<>(leave, HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<Leave> sendLeaveNotification() {
-        return null;
+    public String sendLeaveNotification() {
+        return "Notification";
     }
 
-    @Override
-    public String checkLeaveBalance() {
-        return "";
-    }
+//    @Override
+//    public String checkLeaveBalance() {
+//        return "";
+//    }
 }

@@ -21,6 +21,7 @@ public class LeaveController {
 
     @PostMapping("/request")
     LeaveDto createLeaveRequest(@RequestBody LeaveDto leaveDto){
+
         return leaveService.createLeaveRequest(leaveDto);
     }
 

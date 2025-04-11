@@ -1,6 +1,9 @@
 package com.HRIMS.hrims_backend.dto.request;
 
 
+import com.HRIMS.hrims_backend.dto.DepartmentDto;
+import com.HRIMS.hrims_backend.dto.response.AddressDto;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +15,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EmployeeRequestDto {
     private String firstName;
     private String middleName;
@@ -28,4 +32,5 @@ public class EmployeeRequestDto {
     private String state;
     private String zipcode;
     private String country;
+
 }

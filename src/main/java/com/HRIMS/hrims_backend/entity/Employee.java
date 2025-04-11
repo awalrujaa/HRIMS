@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString
 public class Employee {
 
     @Id
@@ -31,8 +32,11 @@ public class Employee {
     private String bloodGroup;
     private LocalDate dateOfJoining;
 
+    @Column(name = "department_id")
+    private Long departmentId;
+
     @ManyToOne
-    @JoinColumn(name = "department_id", referencedColumnName = "id")
+    @JoinColumn(name = "department_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Department department;
 
     @OneToOne(cascade = CascadeType.ALL)

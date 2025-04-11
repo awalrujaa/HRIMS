@@ -4,14 +4,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString
+@Builder
 public class Department {
 
     @Id

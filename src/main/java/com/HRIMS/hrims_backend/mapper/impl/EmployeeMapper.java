@@ -4,10 +4,11 @@ import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.dto.request.EmployeeRequestDto;
 import com.HRIMS.hrims_backend.dto.response.AddressDto;
 import com.HRIMS.hrims_backend.dto.response.EmployeeResponseDto;
+import com.HRIMS.hrims_backend.entity.Address;
+import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.mapper.IEmployeeMapper;
-import com.HRIMS.hrims_backend.mapper.DepartmentMapper;
-import com.HRIMS.hrims_backend.mapper.AddressMapper;
+import com.HRIMS.hrims_backend.mapper.impl.DepartmentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,27 +22,38 @@ public class EmployeeMapper implements IEmployeeMapper {
 
     @Override
     public EmployeeRequestDto toEmployeeRequestDto(Employee employee) {
-         return EmployeeRequestDto.builder()
-                 .firstName(employee.getFirstName())
-                 .middleName(employee.getMiddleName())
-                 .lastName(employee.getLastName())
-                 .salary(employee.getSalary())
-                 .phoneNumber(employee.getPhoneNumber())
-                 .email(employee.getEmail())
-                 .dateOfBirth(employee.getDateOfBirth())
-                 .bloodGroup(employee.getBloodGroup())
-                 .dateOfJoining(employee.getDateOfJoining())
-                 .departmentId(employee.getDepartment().getId())
-                 .street(employee.getAddress().getStreet())
-                 .city(employee.getAddress().getCity())
-                 .state(employee.getAddress().getState())
-                 .zipcode(employee.getAddress().getZipcode())
-                 .country(employee.getAddress().getCountry())
-                 .build();
+        return EmployeeRequestDto.builder()
+                .firstName(employee.getFirstName())
+                .middleName(employee.getMiddleName())
+                .lastName(employee.getLastName())
+                .salary(employee.getSalary())
+                .phoneNumber(employee.getPhoneNumber())
+                .email(employee.getEmail())
+                .dateOfBirth(employee.getDateOfBirth())
+                .bloodGroup(employee.getBloodGroup())
+                .dateOfJoining(employee.getDateOfJoining())
+                .departmentId(employee.getDepartmentId())
+                .street(employee.getAddress().getStreet())
+                .city(employee.getAddress().getCity())
+                .state(employee.getAddress().getState())
+                .zipcode(employee.getAddress().getZipcode())
+                .country(employee.getAddress().getCountry())
+                .build();
     }
 
     @Override
     public Employee toEmployeeRequestEntity(EmployeeRequestDto employeeRequestDto) {
+
+        AddressDto addressDto = AddressDto.builder()
+                .street(employeeRequestDto.getStreet())
+                .city(employeeRequestDto.getCity())
+                .state(employeeRequestDto.getState())
+                .zipcode(employeeRequestDto.getZipcode())
+                .country(employeeRequestDto.getCountry())
+                .build();
+
+        Address address = addressMapper.toAddressEntity(addressDto);
+
         return Employee.builder()
                 .firstName(employeeRequestDto.getFirstName())
                 .middleName(employeeRequestDto.getMiddleName())
@@ -52,14 +64,8 @@ public class EmployeeMapper implements IEmployeeMapper {
                 .dateOfBirth(employeeRequestDto.getDateOfBirth())
                 .bloodGroup(employeeRequestDto.getBloodGroup())
                 .dateOfJoining(employeeRequestDto.getDateOfJoining())
-                .department(departmentMapper.toDepartmentEntity(DepartmentDto.builder().build()))
-                .address(addressMapper.toAddressEntity(AddressDto.builder()
-                                .street(employeeRequestDto.getStreet())
-                        .city(employeeRequestDto.getCity())
-                                .state(employeeRequestDto.getState())
-                                .zipcode(employeeRequestDto.getZipcode())
-                                .country(employeeRequestDto.getCountry())
-                        .build()))
+                .departmentId(employeeRequestDto.getDepartmentId())
+                .address(address)
                 .build();
     }
 

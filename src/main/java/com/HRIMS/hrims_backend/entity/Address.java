@@ -2,14 +2,15 @@ package com.HRIMS.hrims_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString
+@Table(name = "address")
 public class Address {
 
     @Id

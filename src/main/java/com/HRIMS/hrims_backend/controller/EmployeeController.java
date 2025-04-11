@@ -4,6 +4,7 @@ import com.HRIMS.hrims_backend.dto.request.EmployeeRequestDto;
 import com.HRIMS.hrims_backend.dto.response.EmployeeResponseDto;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.service.EmployeeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,32 +13,29 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/employees")
+@RequiredArgsConstructor
 public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    public EmployeeController(EmployeeService employeeService){
-        this.employeeService = employeeService;
-    }
-
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee){
-        return employeeService.createEmployee(employee);
+    public EmployeeRequestDto createEmployee(@RequestBody EmployeeRequestDto employeeRequestDto){
+        return employeeService.createEmployee(employeeRequestDto);
     }
 
     @GetMapping
-    public List<EmployeeResponseDto> getAllEmployees() {
+    public List<EmployeeRequestDto> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
 
     @GetMapping("/{employeeId}")
-    public Optional<Employee> getEmployeeById(@PathVariable Long employeeId){
+    public EmployeeRequestDto getEmployeeById(@PathVariable Long employeeId){
         return employeeService.getEmployeeById(employeeId);
     }
 
     @PutMapping("/{employeeId}")
-    public Employee updateEmployee(@PathVariable Long employeeId, @RequestBody Employee employeeDetails){
-        return employeeService.updateEmployee(employeeId, employeeDetails);
+    public EmployeeRequestDto updateEmployee(@PathVariable Long employeeId, @RequestBody EmployeeRequestDto employeeDetailsDto){
+        return employeeService.updateEmployee(employeeId, employeeDetailsDto);
     }
 
     @DeleteMapping("/{employeeId}")
