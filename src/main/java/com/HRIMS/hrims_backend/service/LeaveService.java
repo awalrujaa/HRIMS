@@ -14,6 +14,6 @@ public interface LeaveService {
     LeaveDto updateLeaveRequest(Long leaveId, LeaveDto updatedLeave);
     String cancelLeaveRequest(Long leaveId);
     ResponseEntity<Leave> approveOrRejectLeave(Long leaveId);
-//    String sendLeaveNotification();
-//    String checkLeaveBalance();
+    String sendLeaveNotification();
+    String checkLeaveBalance();
 }

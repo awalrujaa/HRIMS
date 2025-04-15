@@ -20,6 +20,7 @@ public class Attendance {
     @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employee;
+
     private LocalTime checkIn;
     private LocalTime checkOut;
 

@@ -1,15 +1,12 @@
 package com.HRIMS.hrims_backend.service.impl;
 
-import com.HRIMS.hrims_backend.dto.request.EmployeeRequestDto;
-import com.HRIMS.hrims_backend.dto.response.EmployeeResponseDto;
-import com.HRIMS.hrims_backend.dto.response.AddressDto;
-import com.HRIMS.hrims_backend.dto.DepartmentDto;
+import com.HRIMS.hrims_backend.dto.AddressDto;
 import com.HRIMS.hrims_backend.entity.Address;
+import com.HRIMS.hrims_backend.dto.EmployeeDto;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.entity.Employee;
-import com.HRIMS.hrims_backend.mapper.impl.AddressMapper;
-import com.HRIMS.hrims_backend.mapper.impl.DepartmentMapper;
-import com.HRIMS.hrims_backend.mapper.impl.EmployeeMapper;
+import com.HRIMS.hrims_backend.mapper.AddressMapper;
+import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
 import com.HRIMS.hrims_backend.repository.AddressRepository;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
@@ -20,10 +17,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,8 +31,8 @@ import java.util.stream.Collectors;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-    private final AddressRepository addressRepository;
     private final DepartmentRepository departmentRepository;
+    private final AddressRepository addressRepository;
     private final EmployeeMapper employeeMapper;
 
     /**
@@ -43,49 +41,49 @@ public class EmployeeServiceImpl implements EmployeeService {
      * Employee Save
      * Address Save
      * Return Response
-     * @param employeeRequestDto
+     * @param employeeDto
      * @return
      */
     @Override
     @Transactional
-    public EmployeeRequestDto createEmployee(EmployeeRequestDto employeeRequestDto) {
-        Optional<Department> deptOpt = departmentRepository.findById(employeeRequestDto.getDepartmentId());
-        if(deptOpt.isEmpty()) {
-            log.error("No department found for the department id: {}", employeeRequestDto.getDepartmentId());
+    public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+        Optional<Department> optDepartment = departmentRepository.findById(employeeDto.getDepartmentId());
+        if(optDepartment.isEmpty()) {
+            log.error("No department found for the department id: {}", employeeDto.getDepartmentId());
             throw new RuntimeException("Invalid department found");
         }
 
-        Employee employee = employeeMapper.toEmployeeRequestEntity(employeeRequestDto);
-        employee.setDepartment(deptOpt.get());
-
+        Employee employee = employeeMapper.toEmployeeEntity(employeeDto);
+        employee.setDepartment(optDepartment.get());
         log.info("Saving employee: {}", employee);
-        employeeRepository.save(employee);
-        return employeeMapper.toEmployeeRequestDto(employee);
 
+        employee.getAddresses().forEach(address -> address.setEmployee(employee));
+        employeeRepository.save(employee);
+        return employeeMapper.toEmployeeDto(employee);
     }
 
     @Transactional
     @Override
-    public List<EmployeeRequestDto> getAllEmployees() {
+    public List<EmployeeDto> getAllEmployees() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         List<Employee> employees = employeeRepository.findAll();
-        return employees.stream().map(employeeMapper::toEmployeeRequestDto).collect(Collectors.toList());
+        return employees.stream().map(employeeMapper::toEmployeeDto).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
-    public EmployeeRequestDto getEmployeeById(Long id) {
+    public EmployeeDto getEmployeeById(Long id) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
         if(optionalEmployee.isEmpty()){
             throw new RuntimeException("No employee with id " + id);
         }
-        return employeeMapper.toEmployeeRequestDto(optionalEmployee.get());
+        return employeeMapper.toEmployeeDto(optionalEmployee.get());
     }
 
     @Override
-    public EmployeeRequestDto updateEmployee(Long id, EmployeeRequestDto employeeDetails) {
+    public EmployeeDto updateEmployee(Long id, EmployeeDto employeeDetails) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
         if (optionalEmployee.isEmpty()){
             throw new RuntimeException("Employee not found with id: " + id);
@@ -108,22 +106,26 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new RuntimeException("Department not found with id: " + depId);
         }
         employee.setDepartmentId(depId);
+        employee.setDepartment(departmentRepository.findById(depId).get());
 
-    // id of address should be original
-        long addId = employee.getAddress().getAddressId();
-        Optional<Address> optionalAddress = addressRepository.findById(addId);
-        if (optionalAddress.isEmpty()){
-            throw new RuntimeException("Address not found with id: " + addId);
+        List<Address> oldAddresses = addressRepository.findByEmployeeId(id);
+        List<Address> updatedAddresses = employeeDetails.getAddressList().stream()
+                .map(addressDto -> {
+                    Address address = AddressMapper.addressMapper.toAddressEntity(addressDto);  // Use the mapper to convert AddressDto to Address
+                    address.setEmployee(employee);  // Link the address to the employee
+                    return address;
+                })
+                .collect(Collectors.toList());
+        for(Address address: updatedAddresses) {
+            addressRepository.save(address);
         }
-        Address address = optionalAddress.get();
-        address.setStreet(employeeDetails.getStreet());
-        address.setCity(employeeDetails.getCity());
-        address.setState(employeeDetails.getState());
-        address.setZipcode(employeeDetails.getZipcode());
-        address.setCountry(employeeDetails.getCountry());
-        System.out.println(employee);
+
+        for(Address address: oldAddresses){
+            addressRepository.delete(address);
+        }
+
         employeeRepository.save(employee);
-        return employeeMapper.toEmployeeRequestDto(employee);
+        return employeeMapper.toEmployeeDto(employee);
     }
 
     @Override

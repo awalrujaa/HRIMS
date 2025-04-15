@@ -1,9 +1,7 @@
 package com.HRIMS.hrims_backend.controller;
 
 import com.HRIMS.hrims_backend.dto.LeaveDto;
-import com.HRIMS.hrims_backend.entity.Leave;
 import com.HRIMS.hrims_backend.service.LeaveService;
-import org.springframework.cglib.core.Local;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;

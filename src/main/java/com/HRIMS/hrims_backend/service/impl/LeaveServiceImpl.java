@@ -4,8 +4,8 @@ import com.HRIMS.hrims_backend.dto.LeaveDto;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.entity.Leave;
 import com.HRIMS.hrims_backend.enums.LeaveStatus;
-import com.HRIMS.hrims_backend.mapper.impl.EmployeeMapper;
-import com.HRIMS.hrims_backend.mapper.impl.LeaveMapper;
+import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
+import com.HRIMS.hrims_backend.mapper.LeaveMapper;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
 import com.HRIMS.hrims_backend.repository.LeaveRepository;
 import com.HRIMS.hrims_backend.service.LeaveService;
@@ -29,21 +29,17 @@ public class LeaveServiceImpl implements LeaveService {
     private final LeaveRepository leaveRepository;
     private final EmployeeRepository employeeRepository;
     private final LeaveMapper leaveMapper;
-    private final EmployeeMapper employeeMapper;
 
 
     @Override
     public LeaveDto createLeaveRequest(LeaveDto leaveDto) {
         Long empId = leaveDto.getEmployeeId();
-        System.out.println("----------------");
-        System.out.println(empId);
         Optional<Employee> employee = employeeRepository.findById(empId);
         if(employee.isEmpty()){
             throw new RuntimeException("Employee doesn't exist with id: " + empId);
         }
         Leave leave = leaveMapper.toLeaveEntity(leaveDto);
         leave.setLeaveStatus(LeaveStatus.PENDING);
-        System.out.println(leave);
         if(leave.getStartDate().isAfter(leave.getEndDate())){
             throw new RuntimeException("Invalid Operation. Start date should be before end date.");
         }
@@ -80,7 +76,7 @@ public class LeaveServiceImpl implements LeaveService {
         long empId = leave.getEmployee().getId();
 //        Leave leaveEntity = leaveMapper.toLeaveEntity(updatedLeave);
         leave.setEmployee(Employee.builder().id(empId).build());
-        leave.setLeaveType(updatedLeave.getLeaveType());
+        leave.setLeaveType(updatedLeave.getType());
         leave.setStartDate(updatedLeave.getStartDate());
         leave.setEndDate(updatedLeave.getEndDate());
         leaveRepository.save(leave);
@@ -112,7 +108,6 @@ public class LeaveServiceImpl implements LeaveService {
         leave.setLeaveStatus(LeaveStatus.CANCELLED);
         leaveRepository.save(leave);
         sendLeaveNotification();
-//        return new ResponseEntity<>()
         return new ResponseEntity<>(leave, HttpStatus.OK);
     }
 
@@ -120,8 +115,8 @@ public class LeaveServiceImpl implements LeaveService {
         return "Notification";
     }
 
-//    @Override
-//    public String checkLeaveBalance() {
-//        return "";
-//    }
+    @Override
+    public String checkLeaveBalance() {
+        return "";
+    }
 }

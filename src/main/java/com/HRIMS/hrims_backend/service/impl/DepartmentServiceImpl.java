@@ -2,10 +2,12 @@ package com.HRIMS.hrims_backend.service.impl;
 
 import com.HRIMS.hrims_backend.dto.DepartmentDto;
 import com.HRIMS.hrims_backend.entity.Department;
-import com.HRIMS.hrims_backend.mapper.impl.DepartmentMapper;
+import com.HRIMS.hrims_backend.mapper.DepartmentMapper;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,15 +15,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DepartmentServiceImpl implements DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
-
-    public DepartmentServiceImpl (DepartmentRepository departmentRepository, DepartmentMapper departmentMapper){
-        this.departmentRepository = departmentRepository;
-        this.departmentMapper = departmentMapper;
-    }
 
     @Override
     public DepartmentDto createDepartment(DepartmentDto departmentDto) {
@@ -59,8 +57,8 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department departmentEntity = departmentMapper.toDepartmentEntity(departmentDetails);
         // Get the existing department from the optional object
         Department department = optionalDepartment.get();
-        department.setDepartmentName(departmentEntity.getDepartmentName());
-        department.setDepartmentCode(departmentEntity.getDepartmentCode());
+        department.setName(departmentEntity.getName());
+        department.setCode(departmentEntity.getCode());
         departmentRepository.save(department);
         return departmentMapper.toDepartmentDto(department);
     }
@@ -68,7 +66,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public String deleteDepartmentById(Long id) {
         Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        // If the department is not found, throw an exception (or handle it as needed)
+        // If the department is not found, throw an exception
         if (optionalDepartment.isEmpty()) {
             return "Department not found with id " + id;
         }

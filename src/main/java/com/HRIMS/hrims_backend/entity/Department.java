@@ -19,8 +19,8 @@ public class Department {
     private long id;
 
     @NotNull(message = "Department name cannot be null")
-    private String departmentName;
+    private String name;
 
     @NotNull(message = "Department code cannot be null")
-    private String departmentCode;
+    private String code;
 }

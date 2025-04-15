@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -21,13 +23,9 @@ public class Employee {
     private String middleName;
     private String lastName;
     private String fullName;
-//    private String userName;    // For Login
-//    private String password;    // Password is stored only after hashing.
-//    private String role;
     private double salary;
     private String phoneNumber;
     private String email;
-//    private String designation;
     private LocalDate dateOfBirth;
     private String bloodGroup;
     private LocalDate dateOfJoining;
@@ -39,9 +37,11 @@ public class Employee {
     @JoinColumn(name = "department_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Department department;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
-    private Address address;
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<Address> addresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<Payroll> payrolls = new ArrayList<>();
 
     // Automatically set full name before saving
     @PrePersist
