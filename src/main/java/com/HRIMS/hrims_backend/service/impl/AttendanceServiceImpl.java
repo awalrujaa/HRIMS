@@ -28,9 +28,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public AttendanceDto createAttendance(AttendanceDto attendanceDto) {
-        System.out.println(attendanceDto);
         Long empId = attendanceDto.getEmployeeId();
-        System.out.println(empId);
         Optional<Employee> employee = employeeRepository.findById(empId);
         if(employee.isEmpty()){
             throw new RuntimeException("Employee doesn't exist with id: " + empId);

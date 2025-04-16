@@ -41,6 +41,9 @@ public class Employee {
     private List<Address> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<Leave> leaves = new ArrayList<>();
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<Payroll> payrolls = new ArrayList<>();
 
     // Automatically set full name before saving

@@ -28,6 +28,5 @@ public class PayrollDto {
     private double tax;
     private double others;
 
-    private double netSalary;
     private LocalDateTime payDate;
 }

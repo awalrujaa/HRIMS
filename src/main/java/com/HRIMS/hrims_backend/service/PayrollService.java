@@ -12,7 +12,7 @@ public interface PayrollService {
 
     PayrollDto getPayrollById(Long payrollId);
 
-    PayrollDto updatePayroll(PayrollDto payrollDetails);
+    PayrollDto updatePayroll(Long payrollId, PayrollDto payrollDetails);
 
     String deletePayroll(Long payrollId);
 }
