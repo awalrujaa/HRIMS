@@ -6,7 +6,7 @@ import com.HRIMS.hrims_backend.mapper.DepartmentMapper;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,26 +37,17 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDto getDepartmentById(Long id) {
-        Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        // If the department is not found, throw an exception
-        if (optionalDepartment.isEmpty()) {
-            throw new RuntimeException("Department not found with id " + id);
-        }
-        Department department = optionalDepartment.get();
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id " + id));
         return departmentMapper.toDepartmentDto(department);
     }
 
     @Override
     public DepartmentDto updateDepartment(Long id, DepartmentDto departmentDetails) {
-        Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        // If the department is not found, throw an exception
-        if (optionalDepartment.isEmpty()) {
-            throw new RuntimeException("Department not found with id " + id);
-        }
+        Department department = departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id " + id));
 
         Department departmentEntity = departmentMapper.toDepartmentEntity(departmentDetails);
-        // Get the existing department from the optional object
-        Department department = optionalDepartment.get();
         department.setName(departmentEntity.getName());
         department.setCode(departmentEntity.getCode());
         departmentRepository.save(department);
@@ -65,13 +56,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public String deleteDepartmentById(Long id) {
-        Optional<Department> optionalDepartment = departmentRepository.findById(id);
-        // If the department is not found, throw an exception
-        if (optionalDepartment.isEmpty()) {
-            return "Department not found with id " + id;
-        }
+        departmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with id " + id));
         departmentRepository.deleteById(id);
-        return "Success";
+        return "Successfully deleted Department with id " + id;
     }
 
     @Override
@@ -79,5 +67,4 @@ public class DepartmentServiceImpl implements DepartmentService {
         departmentRepository.deleteAll();
         return "Deleted All Departments";
     }
-
 }

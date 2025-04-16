@@ -16,9 +16,14 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    @PostMapping
-    AttendanceDto createAttendance(@RequestBody AttendanceDto attendanceDto){
-        return attendanceService.createAttendance(attendanceDto);
+    @PostMapping("/checkIn")
+    AttendanceDto createCheckIn(@RequestBody AttendanceDto attendanceDto){
+        return attendanceService.createCheckIn(attendanceDto);
+    }
+
+    @PostMapping("/checkOut")
+    AttendanceDto createCheckOut(@RequestBody AttendanceDto attendanceDto){
+        return attendanceService.createCheckOut(attendanceDto);
     }
 
 

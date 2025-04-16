@@ -1,6 +1,7 @@
 package com.HRIMS.hrims_backend.controller;
 
 import com.HRIMS.hrims_backend.dto.DepartmentDto;
+import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

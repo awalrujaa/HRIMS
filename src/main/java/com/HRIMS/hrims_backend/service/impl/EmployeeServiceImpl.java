@@ -1,10 +1,10 @@
 package com.HRIMS.hrims_backend.service.impl;
 
-import com.HRIMS.hrims_backend.dto.AddressDto;
 import com.HRIMS.hrims_backend.entity.Address;
 import com.HRIMS.hrims_backend.dto.EmployeeDto;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.entity.Employee;
+import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import com.HRIMS.hrims_backend.mapper.AddressMapper;
 import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
 import com.HRIMS.hrims_backend.repository.AddressRepository;
@@ -19,9 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,26 +33,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final AddressRepository addressRepository;
     private final EmployeeMapper employeeMapper;
 
-    /**
-     * Validation:
-     *
-     * Employee Save
-     * Address Save
-     * Return Response
-     * @param employeeDto
-     * @return
-     */
+
     @Override
     @Transactional
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-        Optional<Department> optDepartment = departmentRepository.findById(employeeDto.getDepartmentId());
-        if(optDepartment.isEmpty()) {
-            log.error("No department found for the department id: {}", employeeDto.getDepartmentId());
-            throw new RuntimeException("Invalid department found");
-        }
+        Department department = departmentRepository.findById(employeeDto.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("No department found for the department id: " + employeeDto.getDepartmentId()));
 
         Employee employee = employeeMapper.toEmployeeEntity(employeeDto);
-        employee.setDepartment(optDepartment.get());
+        employee.setDepartment(department);
         log.info("Saving employee: {}", employee);
 
         employee.getAddresses().forEach(address -> address.setEmployee(employee));
@@ -75,20 +62,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional
     @Override
     public EmployeeDto getEmployeeById(Long id) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        if(optionalEmployee.isEmpty()){
-            throw new RuntimeException("No employee with id " + id);
-        }
-        return employeeMapper.toEmployeeDto(optionalEmployee.get());
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
+
+        return employeeMapper.toEmployeeDto(employee);
     }
 
     @Override
     public EmployeeDto updateEmployee(Long id, EmployeeDto employeeDetails) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        if (optionalEmployee.isEmpty()){
-            throw new RuntimeException("Employee not found with id: " + id);
-        }
-        Employee employee = optionalEmployee.get();
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
+
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setMiddleName(employeeDetails.getMiddleName());
         employee.setLastName(employeeDetails.getLastName());
@@ -130,12 +114,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public String deleteEmployee(Long id) {
-        Optional<Employee> employee = employeeRepository.findById(id);
-        if (employee.isEmpty()){
-            return "Employee doesn't exist with id: " + id;
-        }
+        employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
+
         employeeRepository.deleteById(id);
-        return "Success";
+        return "Successfully deleted employee with id " + id;
     }
 
     @Override

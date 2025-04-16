@@ -11,4 +11,5 @@ import lombok.*;
 public class DepartmentDto {
     private String name;
     private String code;
+
 }

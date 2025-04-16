@@ -4,6 +4,7 @@ import com.HRIMS.hrims_backend.dto.AttendanceDto;
 import com.HRIMS.hrims_backend.entity.Attendance;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.enums.AttendanceStatus;
+import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import com.HRIMS.hrims_backend.mapper.AttendanceMapper;
 import com.HRIMS.hrims_backend.repository.AttendanceRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,13 +29,26 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final AttendanceMapper attendanceMapper;
 
     @Override
-    public AttendanceDto createAttendance(AttendanceDto attendanceDto) {
-        Long empId = attendanceDto.getEmployeeId();
-        Optional<Employee> employee = employeeRepository.findById(empId);
-        if(employee.isEmpty()){
-            throw new RuntimeException("Employee doesn't exist with id: " + empId);
-        }
+    public AttendanceDto createCheckIn(AttendanceDto attendanceDto) {
+        employeeRepository.findById(attendanceDto.getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + attendanceDto.getEmployeeId()));
+
         Attendance attendance = attendanceMapper.toAttendanceEntity(attendanceDto);
+        attendance.setStatus(AttendanceStatus.IN_PROGRESS);
+        attendanceRepository.save(attendance);
+        return attendanceMapper.toAttendanceDto(attendance);
+    }
+
+    @Override
+    public AttendanceDto createCheckOut(AttendanceDto attendanceDto) {
+        employeeRepository.findById(attendanceDto.getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + attendanceDto.getEmployeeId()));
+
+        Attendance attendance = attendanceMapper.toAttendanceEntity(attendanceDto);
+        Duration duration = Duration.between(attendance.getCheckOut(), attendance.getCheckIn());
+        long totalMinutes = duration.toMinutes();
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
         attendance.setStatus(AttendanceStatus.IN_PROGRESS);
         attendanceRepository.save(attendance);
         return attendanceMapper.toAttendanceDto(attendance);

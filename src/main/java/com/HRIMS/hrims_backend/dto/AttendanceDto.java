@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -17,8 +17,8 @@ import java.time.LocalTime;
 public class AttendanceDto {
     private Long employeeId;
 
-    private LocalTime checkIn;
-    private LocalTime checkOut;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
 
     private AttendanceStatus status;
 }

@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 public interface AttendanceService {
-    // CRUD operations
-    AttendanceDto createAttendance(AttendanceDto attendanceDto);
+
+    AttendanceDto createCheckIn(AttendanceDto attendanceDto);
+
+    AttendanceDto createCheckOut(AttendanceDto attendanceDto);
 
     List<AttendanceDto> viewAllAttendances();
 

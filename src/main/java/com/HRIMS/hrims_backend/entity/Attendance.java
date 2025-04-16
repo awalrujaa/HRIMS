@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +21,8 @@ public class Attendance {
     @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employee;
 
-    private LocalTime checkIn;
-    private LocalTime checkOut;
+    private LocalDateTime checkIn;
+    private LocalDateTime checkOut;
 
     @Enumerated(EnumType.STRING)
     private AttendanceStatus status;
