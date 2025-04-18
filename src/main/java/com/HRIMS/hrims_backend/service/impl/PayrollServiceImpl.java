@@ -1,9 +1,7 @@
 package com.HRIMS.hrims_backend.service.impl;
 
 import com.HRIMS.hrims_backend.dto.PayrollDto;
-import com.HRIMS.hrims_backend.entity.Attendance;
 import com.HRIMS.hrims_backend.entity.Employee;
-import com.HRIMS.hrims_backend.entity.Leave;
 import com.HRIMS.hrims_backend.entity.Payroll;
 import com.HRIMS.hrims_backend.mapper.PayrollMapper;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;

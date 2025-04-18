@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.service.impl;
 
+import com.HRIMS.hrims_backend.config.AttendanceProperties;
 import com.HRIMS.hrims_backend.dto.AttendanceDto;
 import com.HRIMS.hrims_backend.entity.Attendance;
 import com.HRIMS.hrims_backend.entity.Employee;
@@ -16,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,33 +29,76 @@ import java.util.stream.Collectors;
 public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
-    private final EmployeeRepository employeeRepository;
     private final AttendanceMapper attendanceMapper;
+    private final AttendanceProperties config;
 
-    @Override
-    public AttendanceDto createCheckIn(AttendanceDto attendanceDto) {
-        employeeRepository.findById(attendanceDto.getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + attendanceDto.getEmployeeId()));
+@Override
+    public AttendanceDto checkIn(AttendanceDto attendanceDto) {
+        LocalDate today = LocalDate.now();
 
-        Attendance attendance = attendanceMapper.toAttendanceEntity(attendanceDto);
-        attendance.setStatus(AttendanceStatus.IN_PROGRESS);
+        // Prevent duplicate check-ins
+        Optional<Attendance> existing = attendanceRepository.findByEmployeeIdAndDate(attendanceDto.getEmployeeId(), today);
+        if (existing.isPresent() && existing.get().getCheckIn() != null) {
+            throw new IllegalStateException("User has already checked in today.");
+        }
+
+        Attendance attendance = existing.orElse(new Attendance());
+        attendance.setEmployee(Employee.builder().
+                id(attendanceDto.getEmployeeId()).
+                build());
+        attendance.setDate(today);
+        attendance.setCheckIn(LocalDateTime.now());
+
+        attendanceRepository.save(attendance);
+        return attendanceMapper.toAttendanceDto(attendance);
+    }
+
+@Override
+    public AttendanceDto checkOut(AttendanceDto attendanceDto) {
+        LocalDate today = LocalDate.now();
+
+        Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(attendanceDto.getEmployeeId(), today)
+                .orElseThrow(() -> new IllegalStateException("User has not checked in today."));
+
+        attendance.setCheckOut(LocalDateTime.now());
+
+        attendance.setStatus(getStatus(attendance.getCheckIn(), attendance.getCheckOut()));
+
         attendanceRepository.save(attendance);
         return attendanceMapper.toAttendanceDto(attendance);
     }
 
     @Override
-    public AttendanceDto createCheckOut(AttendanceDto attendanceDto) {
-        employeeRepository.findById(attendanceDto.getEmployeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + attendanceDto.getEmployeeId()));
+    public AttendanceStatus getStatus(LocalDateTime checkInDateTime, LocalDateTime checkOutDateTime) {
+    LocalTime checkInTime = checkInDateTime.toLocalTime();
+    LocalTime checkOutTime = checkOutDateTime.toLocalTime();
 
-        Attendance attendance = attendanceMapper.toAttendanceEntity(attendanceDto);
-        Duration duration = Duration.between(attendance.getCheckOut(), attendance.getCheckIn());
-        long totalMinutes = duration.toMinutes();
-        long hours = totalMinutes / 60;
-        long minutes = totalMinutes % 60;
-        attendance.setStatus(AttendanceStatus.IN_PROGRESS);
-        attendanceRepository.save(attendance);
-        return attendanceMapper.toAttendanceDto(attendance);
+    LocalTime startTime = LocalTime.parse(config.getStartTime());
+    LocalTime graceEnd = startTime.plusMinutes(config.getGracePeriodMinutes());
+    LocalTime latestCheckIn = LocalTime.parse(config.getStartTime());
+    LocalTime earlyCheckOut = LocalTime.parse(config.getEarlyCheckoutTime());
+    LocalTime endTime = LocalTime.parse(config.getEndTime());
+
+    boolean isFirstHalfLeave = checkInTime.isAfter(latestCheckIn);
+    boolean isSecondHalfLeave = checkOutTime.isBefore(earlyCheckOut);
+    boolean isLate = !isFirstHalfLeave && checkInTime.isAfter(graceEnd);
+    boolean isEarlyDepart = checkOutTime.isAfter(earlyCheckOut) & checkOutTime.isBefore(endTime);
+
+
+    Duration duration = Duration.between(checkOutTime, checkInTime);
+    long minutes = duration.toMinutes();
+
+    if (isFirstHalfLeave & isSecondHalfLeave) {
+        return AttendanceStatus.ABSENT;
+    } else if (isFirstHalfLeave || isSecondHalfLeave) {
+        return AttendanceStatus.HALF_DAY_LEAVE;
+    } else if (isLate) {
+        return AttendanceStatus.LATE;
+    } else if (isEarlyDepart) {
+        return AttendanceStatus.EARLY_DEPARTURE;
+    } else {
+        return AttendanceStatus.PRESENT;
+    }
     }
 
     @Override
@@ -73,28 +120,31 @@ public class AttendanceServiceImpl implements AttendanceService {
         return attendanceMapper.toAttendanceDto(attendance);
     }
 
-    @Override
-    public AttendanceDto updateAttendance(Long attendanceId, AttendanceDto attendanceDetails) {
-        Optional<Attendance> optionalAttendance = attendanceRepository.findById(attendanceId);
-        if(optionalAttendance.isEmpty()){
-            throw new RuntimeException("Attendance not found with id " + attendanceId);
-        }
-        Attendance attendance = optionalAttendance.get();
-        long empId = attendance.getEmployee().getId();
-        attendance.setEmployee(Employee.builder().id(empId).build());
-        attendance.setCheckIn(attendanceDetails.getCheckIn());
-        attendance.setCheckOut(attendanceDetails.getCheckOut());
-        attendanceRepository.save(attendance);
-        return attendanceMapper.toAttendanceDto(attendance);
-    }
-
-    @Override
-    public String deleteAttendance(Long attendanceId) {
-        Optional<Attendance> optionalAttendance = attendanceRepository.findById(attendanceId);
-        if(optionalAttendance.isEmpty()){
-            return "Attendance not found with id " + attendanceId;
-        }
-        attendanceRepository.delete(optionalAttendance.get());
-        return "Success";
-    }
 }
+
+
+//    @Override
+//    public AttendanceDto updateAttendance(Long attendanceId, AttendanceDto attendanceDetails) {
+//        Optional<Attendance> optionalAttendance = attendanceRepository.findById(attendanceId);
+//        if(optionalAttendance.isEmpty()){
+//            throw new RuntimeException("Attendance not found with id " + attendanceId);
+//        }
+//        Attendance attendance = optionalAttendance.get();
+//        long empId = attendance.getEmployee().getId();
+//        attendance.setEmployee(Employee.builder().id(empId).build());
+////        attendance.setCheckIn(attendanceDetails.getCheckIn());
+////        attendance.setCheckOut(attendanceDetails.getCheckOut());
+//        attendanceRepository.save(attendance);
+//        return attendanceMapper.toAttendanceDto(attendance);
+//    }
+//
+//    @Override
+//    public String deleteAttendance(Long attendanceId) {
+//        Optional<Attendance> optionalAttendance = attendanceRepository.findById(attendanceId);
+//        if(optionalAttendance.isEmpty()){
+//            return "Attendance not found with id " + attendanceId;
+//        }
+//        attendanceRepository.delete(optionalAttendance.get());
+//        return "Success";
+//    }
+//}

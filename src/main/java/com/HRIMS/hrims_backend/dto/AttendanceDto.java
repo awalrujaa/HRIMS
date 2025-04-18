@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -17,8 +18,8 @@ import java.time.LocalDateTime;
 public class AttendanceDto {
     private Long employeeId;
 
+    private LocalDate date;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
-
     private AttendanceStatus status;
 }

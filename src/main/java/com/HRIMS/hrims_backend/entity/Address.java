@@ -27,7 +27,6 @@ public class Address {
     @Enumerated(EnumType.STRING)
     private AddressType type;
 
-
     @ManyToOne
     @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employee;

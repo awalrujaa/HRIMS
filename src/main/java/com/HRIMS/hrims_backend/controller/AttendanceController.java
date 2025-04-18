@@ -16,14 +16,14 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    @PostMapping("/checkIn")
-    AttendanceDto createCheckIn(@RequestBody AttendanceDto attendanceDto){
-        return attendanceService.createCheckIn(attendanceDto);
+    @PostMapping("/check-in")
+    AttendanceDto checkIn(@RequestBody AttendanceDto attendanceDto){
+        return attendanceService.checkIn(attendanceDto);
     }
 
-    @PostMapping("/checkOut")
-    AttendanceDto createCheckOut(@RequestBody AttendanceDto attendanceDto){
-        return attendanceService.createCheckOut(attendanceDto);
+    @PostMapping("/check-out")
+    AttendanceDto checkOut(@RequestBody AttendanceDto attendanceDto){
+        return attendanceService.checkOut(attendanceDto);
     }
 
 
@@ -37,14 +37,14 @@ public class AttendanceController {
         return attendanceService.viewAttendanceById(attendanceId);
     }
 
-    @PutMapping("/{attendanceId}")
-    AttendanceDto updateAttendance(@PathVariable Long attendanceId, @RequestBody AttendanceDto attendanceDetails){
-        return attendanceService.updateAttendance(attendanceId, attendanceDetails);
-    }
-
-    @DeleteMapping("/{attendanceId}")
-    String deleteAttendance(@PathVariable Long attendanceId){
-        return attendanceService.deleteAttendance(attendanceId);
-    }
+//    @PutMapping("/{attendanceId}")
+//    AttendanceDto updateAttendance(@PathVariable Long attendanceId, @RequestBody AttendanceDto attendanceDetails){
+//        return attendanceService.updateAttendance(attendanceId, attendanceDetails);
+//    }
+//
+//    @DeleteMapping("/{attendanceId}")
+//    String deleteAttendance(@PathVariable Long attendanceId){
+//        return attendanceService.deleteAttendance(attendanceId);
+//    }
 
 }

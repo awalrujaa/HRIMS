@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,6 +22,7 @@ public class Attendance {
     @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employee;
 
+    private LocalDate date;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
 

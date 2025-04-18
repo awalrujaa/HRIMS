@@ -37,6 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+
         Department department = departmentRepository.findById(employeeDto.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("No department found for the department id: " + employeeDto.getDepartmentId()));
 
