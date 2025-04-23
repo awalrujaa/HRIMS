@@ -1,13 +1,12 @@
 package com.HRIMS.hrims_backend.controller;
 
+import com.HRIMS.hrims_backend.dto.ApiResponse;
 import com.HRIMS.hrims_backend.dto.AttendanceDto;
-import com.HRIMS.hrims_backend.dto.LeaveDto;
+import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 import com.HRIMS.hrims_backend.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,24 +15,19 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    @PostMapping("/check-in")
-    AttendanceDto checkIn(@RequestBody AttendanceDto attendanceDto){
-        return attendanceService.checkIn(attendanceDto);
+    @PostMapping("/mark-register")
+    ApiResponse<AttendanceDto> markRegister(@RequestBody AttendanceDto attendanceDto){
+        return attendanceService.markRegister(attendanceDto);
     }
-
-    @PostMapping("/check-out")
-    AttendanceDto checkOut(@RequestBody AttendanceDto attendanceDto){
-        return attendanceService.checkOut(attendanceDto);
-    }
-
 
     @GetMapping
-    List<AttendanceDto> viewAllAttendance(){
-        return attendanceService.viewAllAttendances();
+    ApiResponse<PaginatedResponse<AttendanceDto>> viewAllAttendance(@RequestParam(defaultValue = "0") int pageNum,
+                                                                   @RequestParam(defaultValue = "10") int pageSize){
+        return attendanceService.viewAllAttendances(pageNum, pageSize);
     }
 
     @GetMapping("/{attendanceId}")
-    AttendanceDto viewAttendanceById(@PathVariable Long attendanceId){
+    ApiResponse<AttendanceDto> viewAttendanceById(@PathVariable Long attendanceId){
         return attendanceService.viewAttendanceById(attendanceId);
     }
 

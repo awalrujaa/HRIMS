@@ -1,11 +1,12 @@
 package com.HRIMS.hrims_backend.controller;
 
+import com.HRIMS.hrims_backend.dto.ApiResponse;
+import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 import com.HRIMS.hrims_backend.dto.PayrollDto;
 import com.HRIMS.hrims_backend.service.PayrollService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,27 +16,28 @@ public class PayrollController {
     private final PayrollService payrollService;
 
     @PostMapping
-    PayrollDto createPayroll(@RequestBody PayrollDto payrollDto){
+    public ApiResponse<PayrollDto> createPayroll(@RequestBody PayrollDto payrollDto){
         return payrollService.createPayroll(payrollDto);
     }
 
     @GetMapping
-    List<PayrollDto> getAllPayrolls(){
-        return payrollService.getAllPayrolls();
+    public ApiResponse<PaginatedResponse<PayrollDto>> getAllPayrolls(@RequestParam(defaultValue = "0") int pageNum,
+                                                                     @RequestParam(defaultValue = "10") int pageSize){
+        return payrollService.getAllPayrolls(pageNum, pageSize);
     }
 
     @GetMapping("/{payrollId}")
-    PayrollDto getPayrollById(@PathVariable Long payrollId){
+    public ApiResponse<PayrollDto> getPayrollById(@PathVariable Long payrollId){
         return payrollService.getPayrollById(payrollId);
     }
 
     @PutMapping("/{payrollId}")
-    PayrollDto updatePayroll(@PathVariable Long payrollId, @RequestBody PayrollDto payrollDetails) {
+    public ApiResponse<PayrollDto> updatePayroll(@PathVariable Long payrollId, @RequestBody PayrollDto payrollDetails) {
         return payrollService.updatePayroll(payrollId, payrollDetails);
     }
 
     @DeleteMapping("/{payrollId}")
-    String deletePayroll(@PathVariable Long payrollId){
+    ApiResponse<String> deletePayroll(@PathVariable Long payrollId){
         return payrollService.deletePayroll(payrollId);
     }
 

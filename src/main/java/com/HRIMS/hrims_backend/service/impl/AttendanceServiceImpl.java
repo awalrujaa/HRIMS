@@ -1,25 +1,30 @@
 package com.HRIMS.hrims_backend.service.impl;
 
 import com.HRIMS.hrims_backend.config.AttendanceProperties;
+import com.HRIMS.hrims_backend.dto.ApiResponse;
 import com.HRIMS.hrims_backend.dto.AttendanceDto;
+import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 import com.HRIMS.hrims_backend.entity.Attendance;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.enums.AttendanceStatus;
-import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import com.HRIMS.hrims_backend.mapper.AttendanceMapper;
 import com.HRIMS.hrims_backend.repository.AttendanceRepository;
-import com.HRIMS.hrims_backend.repository.EmployeeRepository;
 import com.HRIMS.hrims_backend.service.AttendanceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,16 +38,16 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final AttendanceProperties config;
 
 @Override
-    public AttendanceDto checkIn(AttendanceDto attendanceDto) {
+    public ApiResponse<AttendanceDto> markRegister(AttendanceDto attendanceDto) {
         LocalDate today = LocalDate.now();
 
         // Prevent duplicate check-ins
         Optional<Attendance> existing = attendanceRepository.findByEmployeeIdAndDate(attendanceDto.getEmployeeId(), today);
         if (existing.isPresent() && existing.get().getCheckIn() != null) {
-            throw new IllegalStateException("User has already checked in today.");
+            return checkOut(attendanceDto);
         }
 
-        Attendance attendance = existing.orElse(new Attendance());
+        Attendance attendance = new Attendance();
         attendance.setEmployee(Employee.builder().
                 id(attendanceDto.getEmployeeId()).
                 build());
@@ -50,11 +55,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         attendance.setCheckIn(LocalDateTime.now());
 
         attendanceRepository.save(attendance);
-        return attendanceMapper.toAttendanceDto(attendance);
+    return new ApiResponse<>(HttpStatus.OK.value(),
+            "Checked In Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+            attendanceMapper.toAttendanceDto(attendance), new ArrayList<>());
     }
 
 @Override
-    public AttendanceDto checkOut(AttendanceDto attendanceDto) {
+    public ApiResponse<AttendanceDto> checkOut(AttendanceDto attendanceDto) {
         LocalDate today = LocalDate.now();
 
         Attendance attendance = attendanceRepository.findByEmployeeIdAndDate(attendanceDto.getEmployeeId(), today)
@@ -65,7 +72,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         attendance.setStatus(getStatus(attendance.getCheckIn(), attendance.getCheckOut()));
 
         attendanceRepository.save(attendance);
-        return attendanceMapper.toAttendanceDto(attendance);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+            "Checked Out Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                attendanceMapper.toAttendanceDto(attendance), new ArrayList<>());
     }
 
     @Override
@@ -102,22 +111,40 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public List<AttendanceDto> viewAllAttendances() {
+    public ApiResponse<PaginatedResponse<AttendanceDto>> viewAllAttendances(int pageNum, int pageSize) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        List<Attendance> attendanceList = attendanceRepository.findAll();
-        return attendanceList.stream().map(attendanceMapper::toAttendanceDto).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Page<Attendance> attendances = attendanceRepository.findAll(pageable);
+        // Map Page<Attendance> to a list of AttendanceResponse
+        List<AttendanceDto> attendanceDtos = attendances
+                .stream()
+                .map(attendanceMapper::toAttendanceDto)
+                .collect(Collectors.toList());
+        // Create a PaginatedResponse
+        PaginatedResponse<AttendanceDto> paginatedData = new PaginatedResponse<>(
+                attendanceDtos,
+                attendances.getTotalPages(),
+                attendances.getTotalElements(),
+                attendances.getNumber(),
+                attendances.getSize()
+        );
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Attendances retrieved Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                paginatedData, new ArrayList<>());
     }
 
     @Override
-    public AttendanceDto viewAttendanceById(Long attendanceId) {
+    public ApiResponse<AttendanceDto> viewAttendanceById(Long attendanceId) {
         Optional<Attendance> optionalAttendance = attendanceRepository.findById(attendanceId);
         if(optionalAttendance.isEmpty()){
             throw new RuntimeException("No such attendance request.");
         }
         Attendance attendance = optionalAttendance.get();
-        return attendanceMapper.toAttendanceDto(attendance);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Attendance retrieved successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                attendanceMapper.toAttendanceDto(attendance), new ArrayList<>());
     }
 
 }

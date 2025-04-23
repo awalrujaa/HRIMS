@@ -106,14 +106,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ApiResponse<EmployeeResponse> updateEmployee(Long id, EmployeeRequest employeeDetails) {
-        System.out.println(employeeDetails);
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
+
 
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setMiddleName(employeeDetails.getMiddleName());
         employee.setLastName(employeeDetails.getLastName());
-        System.out.println(employeeDetails.getLastName());
         employee.setFullName();
         employee.setSalary(employeeDetails.getSalary());
         employee.setMobileNumber(employeeDetails.getMobileNumber());
@@ -148,7 +147,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employeeRepository.save(employee);
         return new ApiResponse<>(HttpStatus.OK.value(),
-                "Employee udpated successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                "Employee updated successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
                 employeeMapper.toEmployeeDto(employee), new ArrayList<>());
     }
 

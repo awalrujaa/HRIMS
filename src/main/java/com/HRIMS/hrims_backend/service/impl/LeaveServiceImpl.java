@@ -1,10 +1,12 @@
 package com.HRIMS.hrims_backend.service.impl;
 
+import com.HRIMS.hrims_backend.dto.ApiResponse;
 import com.HRIMS.hrims_backend.dto.LeaveDto;
+import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.entity.Leave;
 import com.HRIMS.hrims_backend.enums.LeaveStatus;
-import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
+import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import com.HRIMS.hrims_backend.mapper.LeaveMapper;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
 import com.HRIMS.hrims_backend.repository.LeaveRepository;
@@ -13,13 +15,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -32,76 +38,90 @@ public class LeaveServiceImpl implements LeaveService {
 
 
     @Override
-    public LeaveDto createLeaveRequest(LeaveDto leaveDto) {
+    public ApiResponse<LeaveDto> createLeaveRequest(LeaveDto leaveDto) {
         Long empId = leaveDto.getEmployeeId();
-        Optional<Employee> employee = employeeRepository.findById(empId);
-        if(employee.isEmpty()){
-            throw new RuntimeException("Employee doesn't exist with id: " + empId);
-        }
+        Employee employee = employeeRepository.findById(empId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee doesn't exist with id: " + empId));
+
         Leave leave = leaveMapper.toLeaveEntity(leaveDto);
         leave.setLeaveStatus(LeaveStatus.PENDING);
         if(leave.getStartDate().isAfter(leave.getEndDate())){
             throw new RuntimeException("Invalid Operation. Start date should be before end date.");
         }
         leaveRepository.save(leave);
-        return leaveMapper.toLeaveDto(leave);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Created Department Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                leaveMapper.toLeaveDto(leave), new ArrayList<>());
     }
 
     @Override
-    public List<LeaveDto> viewLeaveRequests(LocalDate startDate, LocalDate endDate) {
+    public ApiResponse<PaginatedResponse<LeaveDto>> viewLeaveRequests(LocalDate startDate, LocalDate endDate,
+                                                                      int pageNum, int pageSize) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        List<Leave> leaveList = leaveRepository.findLeavesBetweenDates(startDate, endDate);
-        return leaveList.stream().map(leaveMapper::toLeaveDto).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Page<Leave> leaves = leaveRepository.findLeavesBetweenDates(startDate, endDate, pageable);
+        List<LeaveDto> leaveResponses = leaves
+                .stream()
+                .map(leaveMapper::toLeaveDto)
+                .collect(Collectors.toList());
+
+        PaginatedResponse<LeaveDto> paginatedData = new PaginatedResponse<>(
+                leaveResponses,
+                leaves.getTotalPages(),
+                leaves.getTotalElements(),
+                leaves.getNumber(),
+                leaves.getSize()
+        );
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Retrieved Leaves Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                paginatedData, new ArrayList<>());
     }
 
     @Override
-    public LeaveDto viewLeaveRequestById(Long leaveId) {
-        Optional<Leave> optionalLeave = leaveRepository.findById(leaveId);
-        if(optionalLeave.isEmpty()){
-            throw new RuntimeException("No such leave request.");
-        }
-        Leave leave = optionalLeave.get();
-        return leaveMapper.toLeaveDto(leave);
+    public ApiResponse<LeaveDto> viewLeaveRequestById(Long id) {
+        Leave leave = leaveRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave not exist with id " + id));
+
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Leave retrieved successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                leaveMapper.toLeaveDto(leave), new ArrayList<>());
     }
 
     @Override
-    public LeaveDto updateLeaveRequest(Long leaveId, LeaveDto updatedLeave) {
-        Optional<Leave> optionalLeave = leaveRepository.findById(leaveId);
-        if(optionalLeave.isEmpty()){
-            throw new RuntimeException("Leave not found with id " + leaveId);
-        }
-        Leave leave = optionalLeave.get();
+    public ApiResponse<LeaveDto> updateLeaveRequest(Long id, LeaveDto updatedLeave) {
+        Leave leave = leaveRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave not exist with id " + id));
+
         long empId = leave.getEmployee().getId();
-//        Leave leaveEntity = leaveMapper.toLeaveEntity(updatedLeave);
         leave.setEmployee(Employee.builder().id(empId).build());
         leave.setLeaveType(updatedLeave.getType());
         leave.setStartDate(updatedLeave.getStartDate());
         leave.setEndDate(updatedLeave.getEndDate());
         leaveRepository.save(leave);
-        return leaveMapper.toLeaveDto(leave);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Department updated successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                leaveMapper.toLeaveDto(leave), new ArrayList<>());
     }
 
     @Override
-    public String cancelLeaveRequest(Long leaveId) {
-        Optional<Leave> optionalLeave = leaveRepository.findById(leaveId);
-        if (optionalLeave.isEmpty()){
-            throw new RuntimeException("Leave not found with id " + leaveId);
-        }
-        Leave leave = optionalLeave.get();
+    public ApiResponse<String> cancelLeaveRequest(Long id) {
+        Leave leave = leaveRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave not exist with id " + id));
+
         leave.setLeaveStatus(LeaveStatus.CANCELLED);
         leaveRepository.save(leave);
-        return "Leave with id " + leaveId + " is cancelled.";
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Leave Cancelled Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                "Leave with id " + id + " is cancelled.", new ArrayList<>());
     }
 
     @Override
-    public ResponseEntity<Leave> approveOrRejectLeave(Long leaveId) {
-        Optional<Leave> optionalLeave = leaveRepository.findById(leaveId);
-        if (optionalLeave.isEmpty()){
-            throw new RuntimeException("Leave not found with id " + leaveId);
-        }
-        Leave leave = optionalLeave.get();
+    public ResponseEntity<Leave> approveOrRejectLeave(Long id) {
+        Leave leave = leaveRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave not exist with id " + id));
+
         if(leave.getLeaveStatus() == LeaveStatus.APPROVED || leave.getLeaveStatus() == LeaveStatus.REJECTED){
             throw new RuntimeException("This leave has already been processed.");
         }

@@ -73,7 +73,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 departments.getSize()
         );
         return new ApiResponse<>(HttpStatus.OK.value(),
-                "Created Department Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                "Retrieved Department Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
                 paginatedData, new ArrayList<>());
     }
 
