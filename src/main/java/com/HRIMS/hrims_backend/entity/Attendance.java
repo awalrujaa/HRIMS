@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.entity;
 
+import com.HRIMS.hrims_backend.common.audit.Auditable;
 import com.HRIMS.hrims_backend.enums.AttendanceStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Attendance {
+public class Attendance extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

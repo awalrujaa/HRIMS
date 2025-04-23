@@ -1,6 +1,7 @@
 package com.HRIMS.hrims_backend.mapper;
 
-import com.HRIMS.hrims_backend.dto.EmployeeDto;
+import com.HRIMS.hrims_backend.dto.EmployeeRequest;
+import com.HRIMS.hrims_backend.dto.EmployeeResponse;
 import com.HRIMS.hrims_backend.entity.Employee;
 import org.mapstruct.*;
 
@@ -8,8 +9,9 @@ import org.mapstruct.*;
 public interface EmployeeMapper {
 
     @Mapping(source = "addresses", target = "addressList", qualifiedByName = "setAddressesDto")
-    EmployeeDto toEmployeeDto(Employee employee);
+    EmployeeResponse toEmployeeDto(Employee employee);
 
     @Mapping(source = "addressList", target = "addresses", qualifiedByName = "setAddressesEntity")
-    Employee toEmployeeEntity(EmployeeDto employeeDto);
+    Employee toEmployeeEntity(EmployeeRequest employeeRequest);
+
 }

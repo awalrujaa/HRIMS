@@ -1,9 +1,11 @@
 package com.HRIMS.hrims_backend.service.impl;
 
+import com.HRIMS.hrims_backend.dto.*;
 import com.HRIMS.hrims_backend.entity.Address;
-import com.HRIMS.hrims_backend.dto.EmployeeDto;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.entity.Employee;
+import com.HRIMS.hrims_backend.enums.RoleType;
+import com.HRIMS.hrims_backend.exception.InvalidPasswordException;
 import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
 import com.HRIMS.hrims_backend.mapper.AddressMapper;
 import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
@@ -11,14 +13,22 @@ import com.HRIMS.hrims_backend.repository.AddressRepository;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
 import com.HRIMS.hrims_backend.service.EmployeeService;
+import com.HRIMS.hrims_backend.utils.PasswordUtil;
+import com.HRIMS.hrims_backend.utils.PasswordValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,53 +43,80 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final AddressRepository addressRepository;
     private final EmployeeMapper employeeMapper;
 
-
     @Override
     @Transactional
-    public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+    public ApiResponse<EmployeeResponse> createEmployee(EmployeeRequest employeeRequest) {
 
-        Department department = departmentRepository.findById(employeeDto.getDepartmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("No department found for the department id: " + employeeDto.getDepartmentId()));
+        Department department = departmentRepository.findById(employeeRequest.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("No department found for the department id: " + employeeRequest.getDepartmentId()));
 
-        Employee employee = employeeMapper.toEmployeeEntity(employeeDto);
+        Employee employee = employeeMapper.toEmployeeEntity(employeeRequest);
+        if (!PasswordValidator.validatePassword(employee.getPassword())) {
+            throw new InvalidPasswordException("Invalid Password.");
+        }
+        employee.setPassword(PasswordUtil.hashPassword(employee.getPassword()));
+        employee.setRole(RoleType.USER.toString());
         employee.setDepartment(department);
         log.info("Saving employee: {}", employee);
 
         employee.getAddresses().forEach(address -> address.setEmployee(employee));
         employeeRepository.save(employee);
-        return employeeMapper.toEmployeeDto(employee);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Created Employee Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                employeeMapper.toEmployeeDto(employee), new ArrayList<>());
     }
 
     @Transactional
     @Override
-    public List<EmployeeDto> getAllEmployees() {
+    public ApiResponse<PaginatedResponse<EmployeeResponse>> getAllEmployees(int pageNum, int pageSize) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        List<Employee> employees = employeeRepository.findAll();
-        return employees.stream().map(employeeMapper::toEmployeeDto).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Page<Employee> employees = employeeRepository.findAll(pageable);
+        // Map Page<Department> to a list of DepartmentResponse
+        List<EmployeeResponse> employeeResponses = employees
+                .stream()
+                .map(employeeMapper::toEmployeeDto)
+                .collect(Collectors.toList());
+
+        // Create a PaginatedResponse
+        PaginatedResponse<EmployeeResponse> paginatedData = new PaginatedResponse<>(
+                employeeResponses,
+                employees.getTotalPages(),
+                employees.getTotalElements(),
+                employees.getNumber(),
+                employees.getSize()
+        );
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Employees retrieved Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                paginatedData, new ArrayList<>());
     }
 
     @Transactional
     @Override
-    public EmployeeDto getEmployeeById(Long id) {
+    public ApiResponse<EmployeeResponse> getEmployeeById(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
 
-        return employeeMapper.toEmployeeDto(employee);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Employee retrieved successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                employeeMapper.toEmployeeDto(employee), new ArrayList<>());
     }
 
     @Override
-    public EmployeeDto updateEmployee(Long id, EmployeeDto employeeDetails) {
+    public ApiResponse<EmployeeResponse> updateEmployee(Long id, EmployeeRequest employeeDetails) {
+        System.out.println(employeeDetails);
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
 
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setMiddleName(employeeDetails.getMiddleName());
         employee.setLastName(employeeDetails.getLastName());
+        System.out.println(employeeDetails.getLastName());
         employee.setFullName();
         employee.setSalary(employeeDetails.getSalary());
-        employee.setPhoneNumber(employeeDetails.getPhoneNumber());
+        employee.setMobileNumber(employeeDetails.getMobileNumber());
         employee.setEmail(employeeDetails.getEmail());
         employee.setDateOfBirth(employeeDetails.getDateOfBirth());
         employee.setBloodGroup(employeeDetails.getBloodGroup());
@@ -110,21 +147,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         employeeRepository.save(employee);
-        return employeeMapper.toEmployeeDto(employee);
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Employee udpated successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                employeeMapper.toEmployeeDto(employee), new ArrayList<>());
     }
 
     @Override
-    public String deleteEmployee(Long id) {
+    public ApiResponse<String> deleteEmployee(Long id) {
         employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Employee found with id " + id));
 
         employeeRepository.deleteById(id);
-        return "Successfully deleted employee with id " + id;
+        return new ApiResponse<>(HttpStatus.NO_CONTENT.value(),
+                "Employee Deleted Successfully.", HttpStatus.NO_CONTENT.name(), LocalDateTime.now(),
+                "Employee with ID " + id + " deleted successfully.", new ArrayList<>());
     }
 
-    @Override
-    public String deleteAllEmployees() {
-        employeeRepository.deleteAll();
-        return "Successfully Deleted All Employees";
-    }
 }

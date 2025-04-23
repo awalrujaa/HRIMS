@@ -1,11 +1,10 @@
 package com.HRIMS.hrims_backend.controller;
 
-import com.HRIMS.hrims_backend.dto.EmployeeDto;
+import com.HRIMS.hrims_backend.dto.*;
 import com.HRIMS.hrims_backend.service.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -15,27 +14,28 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @PostMapping
-    public EmployeeDto createEmployee(@RequestBody EmployeeDto employeeDto){
-        return employeeService.createEmployee(employeeDto);
+    public ApiResponse<EmployeeResponse> createEmployee(@RequestBody @Valid EmployeeRequest employeeRequest){
+        return employeeService.createEmployee(employeeRequest);
     }
 
     @GetMapping
-    public List<EmployeeDto> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public ApiResponse<PaginatedResponse<EmployeeResponse>> getAllEmployees(@RequestParam(defaultValue = "0") int pageNum,
+                                                                            @RequestParam(defaultValue = "10") int pageSize) {
+        return employeeService.getAllEmployees(pageNum, pageSize);
     }
 
     @GetMapping("/{employeeId}")
-    public EmployeeDto getEmployeeById(@PathVariable Long employeeId){
+    public ApiResponse<EmployeeResponse> getEmployeeById(@PathVariable Long employeeId){
         return employeeService.getEmployeeById(employeeId);
     }
 
     @PutMapping("/{employeeId}")
-    public EmployeeDto updateEmployee(@PathVariable Long employeeId, @RequestBody EmployeeDto employeeDetailsDto){
-        return employeeService.updateEmployee(employeeId, employeeDetailsDto);
+    public ApiResponse<EmployeeResponse> updateEmployee(@PathVariable Long employeeId, @RequestBody @Valid EmployeeRequest employeeDetails){
+        return employeeService.updateEmployee(employeeId, employeeDetails);
     }
 
     @DeleteMapping("/{employeeId}")
-    public String deleteEmployee(@PathVariable Long employeeId){
+    public ApiResponse<String> deleteEmployee(@PathVariable Long employeeId){
         return employeeService.deleteEmployee(employeeId);
     }
 }

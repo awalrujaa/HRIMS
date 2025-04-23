@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.entity;
 
+import com.HRIMS.hrims_backend.common.audit.Auditable;
 import com.HRIMS.hrims_backend.enums.LeaveStatus;
 import com.HRIMS.hrims_backend.enums.LeaveType;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Leave {
+public class Leave extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

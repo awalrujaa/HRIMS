@@ -14,12 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EmployeeDto {
+public class EmployeeResponse {
     private String firstName;
     private String middleName;
     private String lastName;
     private double salary;
-    private String phoneNumber;
+    private String mobileNumber;
     private String email;
     private LocalDate dateOfBirth;
     private String bloodGroup;

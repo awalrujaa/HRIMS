@@ -1,21 +1,22 @@
 package com.HRIMS.hrims_backend.service;
 
-import com.HRIMS.hrims_backend.dto.EmployeeDto;
+import com.HRIMS.hrims_backend.dto.ApiResponse;
+import com.HRIMS.hrims_backend.dto.EmployeeRequest;
+import com.HRIMS.hrims_backend.dto.EmployeeResponse;
+import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 
 import java.util.List;
 
 public interface EmployeeService {
 
-    EmployeeDto createEmployee(EmployeeDto employeeRequestDto);
+    ApiResponse<EmployeeResponse> createEmployee(EmployeeRequest employeeRequest);
 
-    List<EmployeeDto> getAllEmployees();
+    ApiResponse<PaginatedResponse<EmployeeResponse>> getAllEmployees(int pageNum, int pageSize);
 
-    EmployeeDto getEmployeeById(Long id);
+    ApiResponse<EmployeeResponse> getEmployeeById(Long id);
 
-    EmployeeDto updateEmployee(Long id, EmployeeDto employee);
+    ApiResponse<EmployeeResponse> updateEmployee(Long id, EmployeeRequest employeeDetails);
 
-    String deleteEmployee(Long id);
-
-    String deleteAllEmployees();
+    ApiResponse<String> deleteEmployee(Long id);
 
 }

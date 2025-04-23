@@ -1,5 +1,7 @@
 package com.HRIMS.hrims_backend.entity;
 
+import com.HRIMS.hrims_backend.common.audit.Auditable;
+import com.HRIMS.hrims_backend.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @ToString
-public class Employee {
+public class Employee extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +25,11 @@ public class Employee {
     private String middleName;
     private String lastName;
     private String fullName;
+    private String userName;
+    private String password;
+    private String role;
     private double salary;
-    private String phoneNumber;
+    private String mobileNumber;
     private String email;
     private LocalDate dateOfBirth;
     private String bloodGroup;

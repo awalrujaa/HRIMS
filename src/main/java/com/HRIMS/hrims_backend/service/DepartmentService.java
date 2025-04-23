@@ -1,19 +1,20 @@
 package com.HRIMS.hrims_backend.service;
 
-import com.HRIMS.hrims_backend.dto.DepartmentDto;
-import java.util.List;
+import com.HRIMS.hrims_backend.dto.DepartmentRequest;
+import com.HRIMS.hrims_backend.dto.DepartmentResponse;
+import com.HRIMS.hrims_backend.dto.PaginatedResponse;
+import com.HRIMS.hrims_backend.dto.ApiResponse;
 
 public interface DepartmentService {
 
-    DepartmentDto createDepartment(DepartmentDto departmentDto);
+    ApiResponse<DepartmentResponse> createDepartment(DepartmentRequest departmentRequest);
 
-    List<DepartmentDto> getAllDepartments();
+    ApiResponse<PaginatedResponse<DepartmentResponse>> getAllDepartments(int pageNum, int pageSize);
 
-    DepartmentDto getDepartmentById(Long id);
+    ApiResponse<DepartmentResponse> getDepartmentById(Long id);
 
-    DepartmentDto updateDepartment(Long id, DepartmentDto departmentDto);
+    ApiResponse<DepartmentResponse> updateDepartment(Long id, DepartmentRequest departmentRequest);
 
-    String deleteDepartmentById(Long id);
+    ApiResponse<String> deleteDepartmentById(Long id);
 
-    String deleteDepartments();
 }
