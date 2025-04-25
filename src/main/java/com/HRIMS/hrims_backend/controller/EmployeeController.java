@@ -38,4 +38,14 @@ public class EmployeeController {
     public ApiResponse<String> deleteEmployee(@PathVariable Long employeeId){
         return employeeService.deleteEmployee(employeeId);
     }
+
+    @GetMapping("/filter")
+    public ApiResponse<PaginatedResponse<EmployeeResponse>> filterEmployees(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String middleName,
+//            @RequestParam(required = false) String lastName,
+            @RequestParam(defaultValue = "0") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return employeeService.filterEmployees(email, middleName, pageNum, pageSize);
+    }
 }

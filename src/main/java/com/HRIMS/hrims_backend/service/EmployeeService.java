@@ -19,4 +19,6 @@ public interface EmployeeService {
 
     ApiResponse<String> deleteEmployee(Long id);
 
+    public ApiResponse<PaginatedResponse<EmployeeResponse>> filterEmployees(String email, String middleName, int pageNum, int pageSize);
+
 }

@@ -12,6 +12,8 @@ import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
 import com.HRIMS.hrims_backend.repository.AddressRepository;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
+import com.HRIMS.hrims_backend.repository.specification.DepartmentSpecification;
+import com.HRIMS.hrims_backend.repository.specification.EmployeeSpecification;
 import com.HRIMS.hrims_backend.service.EmployeeService;
 import com.HRIMS.hrims_backend.utils.PasswordUtil;
 import com.HRIMS.hrims_backend.utils.PasswordValidator;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -162,4 +165,29 @@ public class EmployeeServiceImpl implements EmployeeService {
                 "Employee with ID " + id + " deleted successfully.", new ArrayList<>());
     }
 
+    public ApiResponse<PaginatedResponse<EmployeeResponse>> filterEmployees(String email, String middleName, int pageNum, int pageSize) {
+        Specification<Employee> specification =
+                (Specification<Employee>) EmployeeSpecification.filterEmployee(email, middleName);
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Page<Employee> employees = employeeRepository.findAll(specification, pageable);
+
+        // Map Page<Department> to a list of DepartmentResponse
+        List<EmployeeResponse> employeeResponses = employees
+                .stream()
+                .map(employeeMapper::toEmployeeDto)
+                .collect(Collectors.toList());
+
+
+        // Create a PaginatedResponse
+        PaginatedResponse<EmployeeResponse> paginatedData = new PaginatedResponse<>(
+                employeeResponses,
+                employees.getTotalPages(),
+                employees.getTotalElements(),
+                employees.getNumber(),
+                employees.getSize()
+        );
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                "Filtered Employee Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                paginatedData, new ArrayList<>());
+    }
 }

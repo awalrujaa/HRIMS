@@ -1,7 +1,6 @@
 package com.HRIMS.hrims_backend.entity;
 
 import com.HRIMS.hrims_backend.common.audit.Auditable;
-import com.HRIMS.hrims_backend.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
 
