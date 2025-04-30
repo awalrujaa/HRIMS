@@ -17,6 +17,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated() // All endpoints require auth
                 )
@@ -30,13 +31,13 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails userDetails = User.withDefaultPasswordEncoder()
-                .username("Ruja")
+                .username("user")
                 .password("password")
                 .roles("USER")
                 .build();
 
         UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("anand")
+                .username("admin")
                 .password("password")
                 .roles("ADMIN")
                 .build();
