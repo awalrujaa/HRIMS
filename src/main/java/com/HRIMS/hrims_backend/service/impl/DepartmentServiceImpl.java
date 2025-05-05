@@ -121,8 +121,16 @@ public class DepartmentServiceImpl implements DepartmentService {
     public ApiResponse<DepartmentResponse> updateDepartment(Long id, DepartmentRequest departmentRequest) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id " + id));
-
         Department departmentEntity = departmentMapper.toDepartmentEntity(departmentRequest);
+        departmentEntity.setId(id);
+
+        if (department.equals(departmentEntity)) {
+            return new ApiResponse<>(HttpStatus.OK.value(),
+                    "Department updated successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
+                    departmentMapper.toDepartmentDTO(department), new ArrayList<>());
+        }
+//            dept1.equals(dept2)) {
+
         if (departmentRepository.existsByNameAndCode(departmentRequest.getName(), departmentRequest.getCode())) {
             throw new ResourceAlreadyExistsException("Department already exists.");
         }
@@ -206,5 +214,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 "Only excel format files supported.", HttpStatus.BAD_REQUEST.name(), LocalDateTime.now(),
                 message, new ArrayList<>());
     }
+
+
 
 }

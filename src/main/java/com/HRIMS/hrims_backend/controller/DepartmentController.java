@@ -6,12 +6,18 @@ import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 import com.HRIMS.hrims_backend.dto.ApiResponse;
 import com.HRIMS.hrims_backend.entity.Department;
 import com.HRIMS.hrims_backend.helper.ExcelHelper;
+import com.HRIMS.hrims_backend.service.CSVService;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import com.HRIMS.hrims_backend.service.ExcelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +36,14 @@ public class DepartmentController {
 
     private final DepartmentService departmentService;
     private final ExcelService excelService;
+    CSVService fileService;
+
+    @Autowired
+    public DepartmentController(DepartmentService departmentService, ExcelService excelService, CSVService fileService) {
+        this.departmentService = departmentService;
+        this.excelService = excelService;
+        this.fileService = fileService;
+    }
 
     @PostMapping
     public ApiResponse<DepartmentResponse> createDepartment(@Valid @RequestBody DepartmentRequest departmentRequest, Principal principal){
@@ -80,5 +94,26 @@ public class DepartmentController {
         return departmentService.uploadFile(file);
     }
 
+    @GetMapping("/download-csv")
+    public ResponseEntity<Resource> getCSVFile() {
+        String filename = "departments.csv";
+        InputStreamResource file = new InputStreamResource(fileService.load());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.parseMediaType("application/csv"))
+                .body(file);
+    }
+
+    @GetMapping("/download-excel")
+    public ResponseEntity<Resource> getExcelFile() {
+        String filename = "departments.xlsx";
+        InputStreamResource file = new InputStreamResource(excelService.load());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                .body(file);
+    }
 
 }

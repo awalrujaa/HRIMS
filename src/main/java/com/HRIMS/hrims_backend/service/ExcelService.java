@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,4 +30,11 @@ public class ExcelService {
         return departmentRepository.findAll();
     }
 
+
+    public ByteArrayInputStream load() {
+        List<Department> departments = departmentRepository.findAll();
+
+        ByteArrayInputStream in = ExcelHelper.departmentsToExcel(departments);
+        return in;
+    }
 }
