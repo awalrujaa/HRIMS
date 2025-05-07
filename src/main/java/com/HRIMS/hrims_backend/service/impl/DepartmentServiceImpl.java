@@ -159,12 +159,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public ApiResponse<PaginatedResponse<DepartmentResponse>> filterDepartmentsPagination(String name, String code,
+    public ApiResponse<PaginatedResponse<DepartmentResponse>> filterDepartmentsPagination(String searchText, String name,
+                                                                                          String code,
                                                                                           String createdBy, String updatedBy,
                                                                                           int pageNum, int pageSize) {
 
         Specification<Department> specification =
-                (Specification<Department>) DepartmentSpecification.filterDepartment(name, code, createdBy, updatedBy);
+                (Specification<Department>) DepartmentSpecification.filterDepartment(searchText, name, code, createdBy, updatedBy);
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         Page<Department> departments = departmentRepository.findAll(specification, pageable);
 

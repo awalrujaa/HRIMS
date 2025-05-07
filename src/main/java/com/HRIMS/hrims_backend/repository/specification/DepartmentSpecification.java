@@ -8,16 +8,15 @@ import static com.HRIMS.hrims_backend.repository.specification.GenericSpecificat
 
 
 public class DepartmentSpecification {
-    public static Specification<Department> filterDepartment(String name, String code, String createdBy, String updatedBy) {
+    public static Specification<Department> filterDepartment(String searchText, String name, String code, String createdBy, String updatedBy) {
 
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
 
-            predicate = andLikeIfNotBlank(predicate, criteriaBuilder, root, "name", name);
+            predicate = andLikeIfNotBlank(predicate, criteriaBuilder, root, "name", searchText);
             predicate = andLikeIfNotBlank(predicate, criteriaBuilder, root, "code", code);
             predicate = andLikeIfNotBlank(predicate, criteriaBuilder, root, "createdBy", createdBy);
             predicate = andLikeIfNotBlank(predicate, criteriaBuilder, root, "updatedBy", updatedBy);
-            System.out.println(predicate);
             return predicate;
         };
     }

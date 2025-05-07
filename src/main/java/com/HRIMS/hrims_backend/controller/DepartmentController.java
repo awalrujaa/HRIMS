@@ -4,8 +4,6 @@ import com.HRIMS.hrims_backend.dto.DepartmentRequest;
 import com.HRIMS.hrims_backend.dto.DepartmentResponse;
 import com.HRIMS.hrims_backend.dto.PaginatedResponse;
 import com.HRIMS.hrims_backend.dto.ApiResponse;
-import com.HRIMS.hrims_backend.entity.Department;
-import com.HRIMS.hrims_backend.helper.ExcelHelper;
 import com.HRIMS.hrims_backend.service.CSVService;
 import com.HRIMS.hrims_backend.service.DepartmentService;
 import com.HRIMS.hrims_backend.service.ExcelService;
@@ -16,15 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin()
@@ -80,13 +75,14 @@ public class DepartmentController {
 
     @GetMapping("/filter")
     public ApiResponse<PaginatedResponse<DepartmentResponse>> filterDepartmentsPagination(
+            @RequestParam(required = false) String searchText,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String createdBy,
             @RequestParam(required = false) String updatedBy,
             @RequestParam(defaultValue = "0") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return departmentService.filterDepartmentsPagination(name, code, createdBy, updatedBy, pageNum, pageSize);
+        return departmentService.filterDepartmentsPagination(searchText, name, code, createdBy, updatedBy, pageNum, pageSize);
     }
 
     @PostMapping("/excel-upload")

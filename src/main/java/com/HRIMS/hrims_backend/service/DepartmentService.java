@@ -23,7 +23,8 @@ public interface DepartmentService {
 
     ApiResponse<String> deleteDepartmentById(Long id);
 
-    public ApiResponse<PaginatedResponse<DepartmentResponse>> filterDepartmentsPagination(String name, String code,
+    public ApiResponse<PaginatedResponse<DepartmentResponse>> filterDepartmentsPagination(String searchText, String name,
+                                                                                          String code,
                                                                                           String createdBy, String updatedBy,
                                                                                           int pageNum, int pageSize);
 
