@@ -12,6 +12,7 @@ import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
 import com.HRIMS.hrims_backend.repository.AddressRepository;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
+import com.HRIMS.hrims_backend.repository.RoleRepository;
 import com.HRIMS.hrims_backend.repository.specification.DepartmentSpecification;
 import com.HRIMS.hrims_backend.repository.specification.EmployeeSpecification;
 import com.HRIMS.hrims_backend.service.EmployeeService;
@@ -28,11 +29,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final DepartmentRepository departmentRepository;
     private final AddressRepository addressRepository;
     private final EmployeeMapper employeeMapper;
+    private final RoleRepository roleRepository;
 
     @Override
     @Transactional
@@ -58,7 +62,13 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new InvalidPasswordException("Invalid Password.");
         }
         employee.setPassword(PasswordUtil.hashPassword(employee.getPassword()));
-        employee.setRole(RoleType.USER.toString());
+        if (Objects.equals(employeeRequest.getRoleType(), "ADMIN")) {
+            employee.setRole(roleRepository.findByName(RoleType.ADMIN).get());
+            System.out.println("ADMIN");
+        } else {
+            employee.setRole(roleRepository.findByName(RoleType.USER).get());
+            System.out.println("USER");
+        }
         employee.setDepartment(department);
         log.info("Saving employee: {}", employee);
 
@@ -70,6 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @Override
     public ApiResponse<PaginatedResponse<EmployeeResponse>> getAllEmployees(int pageNum, int pageSize) {
         ObjectMapper mapper = new ObjectMapper();

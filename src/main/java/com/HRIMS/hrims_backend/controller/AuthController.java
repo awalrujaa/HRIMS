@@ -37,10 +37,10 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/register")
-    public ApiResponse<EmployeeResponse> createEmployee(@RequestBody @Valid EmployeeRequest employeeRequest){
-        return employeeService.createEmployee(employeeRequest);
-    }
+//    @PostMapping("/register")
+//    public ApiResponse<EmployeeResponse> createEmployee(@RequestBody @Valid EmployeeRequest employeeRequest){
+//        return employeeService.createEmployee(employeeRequest);
+//    }
 
 
     @PostMapping("/login")

@@ -47,9 +47,10 @@ public class EmployeeRequest {
             message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.")
     private String password;
 
+    private String roleType;
 
-    @NotBlank(message = "Salary cannot be null.")
-    @Min(value = 1, message = "Salary must be greater than 0.")
+    @NotNull(message = "Salary cannot be null.")
+//    @Min(value = 1, message = "Salary must be greater than 0.")
     private double salary;
 
 
@@ -64,8 +65,7 @@ public class EmployeeRequest {
     private String email;
 
 
-    @NotBlank(message = "Date of birth cannot be null.")
-    @Past(message = "Date of birth must be in the past.")
+    @NotNull(message = "Date of birth cannot be null.")
     private LocalDate dateOfBirth;
 
 
@@ -74,12 +74,12 @@ public class EmployeeRequest {
     private String bloodGroup;
 
 
-    @NotBlank(message = "Date of joining cannot be null.")
-    @PastOrPresent(message = "Date of joining cannot be in the future.")
+    @NotNull(message = "Date of joining cannot be null.")
+//    @PastOrPresent(message = "Date of joining cannot be in the future.")
     private LocalDate dateOfJoining;
 
 
-    @NotBlank(message = "Department ID cannot be null.")
+//    @NotBlank(message = "Department ID cannot be null.")
     private Long departmentId;
 
 

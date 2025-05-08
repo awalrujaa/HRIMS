@@ -42,7 +42,6 @@ public class DepartmentController {
 
     @PostMapping
     public ApiResponse<DepartmentResponse> createDepartment(@Valid @RequestBody DepartmentRequest departmentRequest, Principal principal){
-        log.info("current user: {}", principal.getName());
         return departmentService.createDepartment(departmentRequest);
     }
 

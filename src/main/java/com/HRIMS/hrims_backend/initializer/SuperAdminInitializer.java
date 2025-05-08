@@ -5,6 +5,7 @@ import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.enums.RoleType;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
+import com.HRIMS.hrims_backend.repository.RoleRepository;
 import com.HRIMS.hrims_backend.utils.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,12 +16,14 @@ public class SuperAdminInitializer implements CommandLineRunner {
 
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
     public SuperAdminInitializer(EmployeeRepository employeeRepository,
-                                 DepartmentRepository departmentRepository) {
+                                 DepartmentRepository departmentRepository, RoleRepository roleRepository) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
+        this.roleRepository = roleRepository;
     }
 
 
@@ -46,7 +49,7 @@ public class SuperAdminInitializer implements CommandLineRunner {
             superAdmin.setEmail(defaultEmail);
             superAdmin.setUserName(defaultUsername);
             superAdmin.setPassword(PasswordUtil.hashPassword("SuperSecurePass123"));
-            superAdmin.setRole(RoleType.SUPER_ADMIN.toString());
+            superAdmin.setRole(roleRepository.findByName(RoleType.SUPER_ADMIN).get());
             superAdmin.setDepartmentId(department.getId());
 
             employeeRepository.save(superAdmin);

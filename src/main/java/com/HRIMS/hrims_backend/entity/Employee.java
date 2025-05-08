@@ -4,6 +4,7 @@ import com.HRIMS.hrims_backend.common.audit.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
@@ -30,7 +31,10 @@ public class Employee extends Auditable implements UserDetails {
     private String userName;
     @Column(nullable = false)
     private String password;
-    private String role;
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    private Role role;
     private double salary;
     private String mobileNumber;
 
@@ -69,7 +73,9 @@ public class Employee extends Auditable implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName().toString());
+
+        return List.of(authority);
     }
 
     @Override
