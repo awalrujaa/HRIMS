@@ -203,10 +203,11 @@ public class DepartmentServiceImpl implements DepartmentService {
                         message, new ArrayList<>());
 
             } catch (Exception e) {
-                message = "Could not upload the file: " + file.getOriginalFilename();
+                List<String> errorList = new ArrayList<>();
+                errorList.add("Could not upload the file: " + file.getOriginalFilename());
                 return new ApiResponse<>(HttpStatus.EXPECTATION_FAILED.value(),
                         "Could not upload the file", HttpStatus.EXPECTATION_FAILED.name(), LocalDateTime.now(),
-                        message, new ArrayList<>());
+                        null, errorList);
             }
         }
 

@@ -18,6 +18,7 @@ public class EmployeeResponse {
     private String firstName;
     private String middleName;
     private String lastName;
+    private String fullName;
     private double salary;
     private String mobileNumber;
     private String email;

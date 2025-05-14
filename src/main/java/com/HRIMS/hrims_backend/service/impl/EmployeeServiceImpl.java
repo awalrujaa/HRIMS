@@ -80,7 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @Override
     public ApiResponse<PaginatedResponse<EmployeeResponse>> getAllEmployees(int pageNum, int pageSize) {
         ObjectMapper mapper = new ObjectMapper();
