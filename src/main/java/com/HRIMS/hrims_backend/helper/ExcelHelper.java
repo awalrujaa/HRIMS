@@ -1,6 +1,7 @@
 package com.HRIMS.hrims_backend.helper;
 
 import com.HRIMS.hrims_backend.entity.Department;
+import com.HRIMS.hrims_backend.entity.Employee;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -94,6 +95,119 @@ public class ExcelHelper {
             workbook.close();
 
             return departments;
+
+        } catch (IOException e) {
+            throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
+        }
+    }
+
+    public static List<Employee> excelToEmployees(InputStream is) {
+        try {
+            Workbook workbook = new XSSFWorkbook(is);
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                System.out.println("Sheet " + i + ": " + workbook.getSheetName(i));
+            }
+
+            Sheet sheet = workbook.getSheet(SHEET);
+            if (sheet == null) {
+                sheet = workbook.getSheetAt(0); // get the first sheet as fallback
+            }
+
+//            Sheet sheet = workbook.getSheet(SHEET);
+            Iterator<Row> rows = sheet.iterator();
+
+            List<Employee> employees = new ArrayList<Employee>();
+
+            int rowNumber = 0;
+
+            while(rows.hasNext()) {
+                Row currentRow = rows.next();
+
+                if (rowNumber == 0) {
+                    rowNumber++;
+                    continue;
+                }
+
+                Iterator<Cell> cellsInRow = currentRow.iterator();
+
+                Employee employee = new Employee();
+
+                int cellIdx = 0;
+
+                while (cellsInRow.hasNext()) {
+                    Cell currentCell = cellsInRow.next();
+
+                    switch (cellIdx) {
+                        case 0:
+                            employee.setFirstName(currentCell.getStringCellValue());
+                            break;
+
+                        case 1:
+                            employee.setMiddleName(currentCell.getStringCellValue());
+                            break;
+
+                        case 2:
+                            employee.setLastName(currentCell.getStringCellValue());
+                            break;
+
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 0:
+//                            employee.setFirstName(currentCell.getStringCellValue());
+//                            break;
+//
+//                        case 1:
+//                            String cellType = currentCell.getCellType().toString();
+//                            if (Objects.equals(cellType, "NUMERIC")) {
+//                                department.setCode(String.valueOf((long) currentCell.getNumericCellValue()));
+//                                break;
+//                            }
+//                            department.setCode(currentCell.getStringCellValue());
+//                            break;
+
+                        default:
+                            break;
+                    }
+
+                    cellIdx++;
+                }
+
+                employees.add(employee);
+            }
+
+            workbook.close();
+
+            return employees;
 
         } catch (IOException e) {
             throw new RuntimeException("fail to parse Excel file: " + e.getMessage());

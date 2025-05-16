@@ -4,7 +4,10 @@ import com.HRIMS.hrims_backend.dto.*;
 import com.HRIMS.hrims_backend.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -38,6 +41,11 @@ public class EmployeeController {
     @DeleteMapping("/{employeeId}")
     public ApiResponse<String> deleteEmployee(@PathVariable Long employeeId){
         return employeeService.deleteEmployee(employeeId);
+    }
+
+    @PostMapping("/excel-upload")
+    public ApiResponse<String> uploadFile(@RequestParam("file")MultipartFile file) {
+        return employeeService.uploadFile(file);
     }
 
     @GetMapping("/filter")

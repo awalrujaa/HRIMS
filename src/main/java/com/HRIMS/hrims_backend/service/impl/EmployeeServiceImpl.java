@@ -7,15 +7,16 @@ import com.HRIMS.hrims_backend.entity.Employee;
 import com.HRIMS.hrims_backend.enums.RoleType;
 import com.HRIMS.hrims_backend.exception.InvalidPasswordException;
 import com.HRIMS.hrims_backend.exception.ResourceNotFoundException;
+import com.HRIMS.hrims_backend.helper.ExcelHelper;
 import com.HRIMS.hrims_backend.mapper.AddressMapper;
 import com.HRIMS.hrims_backend.mapper.EmployeeMapper;
 import com.HRIMS.hrims_backend.repository.AddressRepository;
 import com.HRIMS.hrims_backend.repository.DepartmentRepository;
 import com.HRIMS.hrims_backend.repository.EmployeeRepository;
 import com.HRIMS.hrims_backend.repository.RoleRepository;
-import com.HRIMS.hrims_backend.repository.specification.DepartmentSpecification;
 import com.HRIMS.hrims_backend.repository.specification.EmployeeSpecification;
 import com.HRIMS.hrims_backend.service.EmployeeService;
+import com.HRIMS.hrims_backend.service.ExcelService;
 import com.HRIMS.hrims_backend.utils.PasswordUtil;
 import com.HRIMS.hrims_backend.utils.PasswordValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,8 +30,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final AddressRepository addressRepository;
     private final EmployeeMapper employeeMapper;
     private final RoleRepository roleRepository;
+    private final ExcelService excelService;
+
 
     @Override
     @Transactional
@@ -201,4 +204,35 @@ public class EmployeeServiceImpl implements EmployeeService {
                 "Filtered Employee Successfully.", HttpStatus.OK.name(), LocalDateTime.now(),
                 paginatedData, new ArrayList<>());
     }
+
+    public ApiResponse<String> uploadFile(MultipartFile file) {
+        String message = "";
+
+        if (ExcelHelper.hasExcelFormet(file)) {
+            try {
+                excelService.save(file);
+
+                message = "Uploaded file successfully: " + file.getOriginalFilename();
+
+                return new ApiResponse<>(HttpStatus.OK.value(),
+                        "Uploaded file successfully", HttpStatus.OK.name(), LocalDateTime.now(),
+                        message, new ArrayList<>());
+
+            } catch (Exception e) {
+                List<String> errorList = new ArrayList<>();
+                errorList.add("Could not upload the file: " + file.getOriginalFilename());
+                return new ApiResponse<>(HttpStatus.EXPECTATION_FAILED.value(),
+                        "Could not upload the file", HttpStatus.EXPECTATION_FAILED.name(), LocalDateTime.now(),
+                        null, errorList);
+            }
+        }
+
+        message = "Upload an excel file.";
+        return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(),
+                "Only excel format files supported.", HttpStatus.BAD_REQUEST.name(), LocalDateTime.now(),
+                message, new ArrayList<>());
+    }
+
+
+
 }

@@ -4,6 +4,8 @@ import com.HRIMS.hrims_backend.dto.ApiResponse;
 import com.HRIMS.hrims_backend.dto.EmployeeRequest;
 import com.HRIMS.hrims_backend.dto.EmployeeResponse;
 import com.HRIMS.hrims_backend.dto.PaginatedResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,4 +23,5 @@ public interface EmployeeService {
 
     public ApiResponse<PaginatedResponse<EmployeeResponse>> filterEmployees(String email, String middleName, int pageNum, int pageSize);
 
+    public ApiResponse<String> uploadFile(MultipartFile file);
 }

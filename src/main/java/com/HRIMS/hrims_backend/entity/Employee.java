@@ -1,6 +1,7 @@
 package com.HRIMS.hrims_backend.entity;
 
 import com.HRIMS.hrims_backend.common.audit.Auditable;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,8 +41,10 @@ public class Employee extends Auditable implements UserDetails {
 
     @Column(unique = true, length = 100, nullable = false)
     private String email;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
     private String bloodGroup;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfJoining;
 
     @Column(name = "department_id")

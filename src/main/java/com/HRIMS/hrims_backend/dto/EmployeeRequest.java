@@ -1,5 +1,6 @@
 package com.HRIMS.hrims_backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -50,7 +51,6 @@ public class EmployeeRequest {
     private String roleType;
 
     @NotNull(message = "Salary cannot be null.")
-//    @Min(value = 1, message = "Salary must be greater than 0.")
     private double salary;
 
 
@@ -65,7 +65,7 @@ public class EmployeeRequest {
     private String email;
 
 
-    @NotNull(message = "Date of birth cannot be null.")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
 
@@ -74,8 +74,8 @@ public class EmployeeRequest {
     private String bloodGroup;
 
 
-    @NotNull(message = "Date of joining cannot be null.")
 //    @PastOrPresent(message = "Date of joining cannot be in the future.")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfJoining;
 
 
